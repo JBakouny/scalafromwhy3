@@ -1,0 +1,18 @@
+(library
+ (public_name scalafromwhy3)
+ (flags :standard -w -9-32-27 -linkall)
+ (library_flags -linkall)
+ (modules scalafromwhy3)
+ (libraries why3))
+
+(install
+ (section lib_root)
+ (files
+  (scalafromwhy3.cmxs as why3/plugins/scalafromwhy3.cmxs))
+ (package scalafromwhy3))
+
+(install
+ (section share_root)
+ (files
+  (scala.drv as why3/drivers/scala.drv))
+ (package scalafromwhy3))

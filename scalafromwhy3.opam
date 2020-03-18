@@ -1,0 +1,25 @@
+opam-version: "2.0"
+name: "scalafromwhy3"
+synopsis: "A Why3 plug-in to extract Scala code"
+description: "A Why3 plug-in to extract Scala code"
+version: "0.1"
+maintainer: "Elsa-Maria Messarra"
+authors: [
+"Elsa-Maria Messarra"
+"Joseph Bakouny"
+"Jean-Christophe Filliâtre"
+]
+license: "GPL"
+homepage: "https://github.com/ElsaMessarra/scalafromwhy3"
+dev-repo: "https://github.com/ElsaMessarra/scalafromwhy3"
+bug-reports: "https://github.com/ElsaMessarra/scalafromwhy3/issues"
+doc: "https://github.com/ElsaMessarra/scalafromwhy3/blob/master/README.md"
+build: [
+  ["dune" "build" "-p" name "-j" jobs]
+  ["dune" "runtest" "-p" name] {with-test}
+]
+depends: [
+  "dune" {>= "2.0.1"}
+  "why3"
+  "ocaml" {>= "4.07"}
+]
