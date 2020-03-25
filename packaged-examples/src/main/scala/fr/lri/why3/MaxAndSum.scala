@@ -8,9 +8,20 @@ object MaxAndSum {
     for (i <- 0 to n - 1) {
       if (max < a(i)) {
         max = a(i)
-        sum = sum + a(i)
       }
+      sum = sum + a(i)
     }
     (sum, max)
   }
+
+  // test
+  def main(args: Array[String]) {
+    val a = Array(9,5,0,2,7,3,2,1,10,6);
+    val (s,m) = max_sum(a)(10);
+    assert(s == 45);
+    assert(m == 10);
+    print("OK\n")
+  }
+
+
 }
