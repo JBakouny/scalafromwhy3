@@ -20,9 +20,10 @@ object AmortizedQueue {
     if (lf >= lr)
       Queue[A](front = f, lenf = lf, rear = r, lenr = lr)
     else {
-      lazy val f: List[A] = f ++ r.reverse
+      // lazy val f: List[A] = f ++ r.reverse
       // lazy ou renommage comme workaround, voir: https://stackoverflow.com/questions/13328502/what-does-forward-reference-extends-over-definition-of-value-mean-in-scala/13328947
-      Queue[A](front = f, lenf = lf + lr, rear = Nil, lenr = 0)
+      // INCORRECT
+      Queue[A](front = f ++ r.reverse, lenf = lf + lr, rear = Nil, lenr = 0)
     }
 
   def tail[A](q: Queue[A]): Queue[A] = {
@@ -32,4 +33,20 @@ object AmortizedQueue {
 
   def enqueue[A](x: A)(q: Queue[A]): Queue[A] =
     create(q.front)(q.lenf)(x :: q.rear)(q.lenr + 1)
+
+  // test
+  def main(args: Array[String]) {
+    var q: Queue[Int] = empty[Int]
+    q = enqueue[Int](1)(q);
+    assert(head(q) == 1);
+    q = enqueue[Int](2)(q);
+    q = enqueue[Int](3)(q);
+    assert(head(q) == 1);
+    q = tail[Int](q);
+    assert(head(q) == 2);
+    q = tail[Int](q);
+    assert(head(q) == 3);
+    print("OK\n")
+  }
+
 }
