@@ -62,6 +62,13 @@ type info = {
   as           | 7
  *)
 
+(* src/util/pp.ml
+let rec print_list_suf sep print fmt = function
+  | [] -> ()
+  | x :: r -> print fmt x; sep fmt (); print_list_suf sep print fmt r
+
+*)
+
 module Print = struct
 
   open Mltree
@@ -214,7 +221,8 @@ module Print = struct
     | Tvar tv ->
         print_tv ~use_quote fmt tv
     | Ttuple [] ->
-        fprintf fmt "unit"
+	(*ok*)
+        fprintf fmt "Unit"
     | Ttuple [t] ->
         print_ty  ~use_quote ~paren info fmt t
     | Ttuple tl ->
@@ -227,7 +235,7 @@ module Print = struct
               (syntax_arguments s (print_ty ~use_quote ~paren:true info)) tl
         | Some s ->
            fprintf fmt (protect_on paren "%a%s")
-             (print_list_suf space (print_ty ~use_quote ~paren:true info)) tl
+             (print_list_suf space (print_ty ~use_quote ~paren:true info)) tl 
              s
         | None   ->
             match tl with
@@ -479,7 +487,8 @@ module Print = struct
 
   and print_fun_type_args info fmt (args, s, res, e) =
     if Stv.is_empty s then
-      fprintf fmt "@[%a@]:@ %a@ =@ @[<hv>%a@]"
+      fprintf fmt "@[%a@]:@ %a@ =@ @[<hv>%a@]" 
+	(*args:arguments res:type e:expression*)
         (print_list_suf space (print_vs_arg info)) args
         (print_ty ~use_quote:false info) res
         (print_expr ~opr:false info 18) e
@@ -487,7 +496,7 @@ module Print = struct
       let id_args = List.map (fun (id, _, _) -> id) args in
       let arrow fmt () = fprintf fmt " ->@ " in
       let start fmt () = fprintf fmt "fun@ " in
-      fprintf fmt ":@ @[<h>type @[%a@]. @[%a@ %a@]@] =@ \
+      fprintf fmt ":@ @[<h>type @[%a@]. @[%a@ %a@]@] =e: @ \
                    @[<hv 2>@[%a@]%a@]"
         print_svar s
         (print_list_suf arrow (print_vsty_fun info)) args
@@ -500,9 +509,12 @@ module Print = struct
     | Lvar (pv, e) ->
         fprintf fmt "@[<hov 2>let %a =@ %a@]"
           (print_lident info) (pv_name pv) (print_expr ~opr:false info 18) e
-    | Lsym (rs, svar, res, args, ef) ->
-        fprintf fmt "@[<hov 2>let %a %a@]"
+    | Lsym (rs, svar, res, args, ef) ->  
+	(*change: let to def*)
+        fprintf fmt "@[<hov 2>def %a %a@]"
+	(*function name*)
           (print_lident info) rs.rs_name
+	(*?, var list, Stv.t, ty, ?*)
           (print_fun_type_args info) (args,svar,res,ef);
        forget_vars args
     | Lrec rdef ->
@@ -751,10 +763,12 @@ module Print = struct
             (if its.its_private then "private " else "")
             (print_list newline print_field) fl
       | Some (Dalias ty) ->
+	(*same syntax in scala*)
           fprintf fmt " =@ %a" (print_ty ~use_quote:true ~paren:false info) ty
       | Some (Drange _) ->
           fprintf fmt " =@ Z.t"
       | Some (Dfloat _) ->
+	(*no equivalent in scala*)
           assert false (*TODO*)
     in
     let attrs = its.its_name.id_attrs in
