@@ -32,6 +32,7 @@ module bool.Ite
   syntax val ite "if %1 then %2 else %3" prec 16 15 15 15
 end
 
+(*update*)
 module bool.Bool
   syntax val andb  "%1 && %2"      prec 12 11 12
   syntax val orb   "%1 || %2"      prec 13 12 13
@@ -66,12 +67,18 @@ module list.Combine
   syntax val combine "List.combine"
 end
 
+*)
+
+(*decommented section*)
 module Ref
   syntax type     ref      "%1 ref"
   syntax val contents "Pervasives.contents" prec 1 0
-  syntax val      ref      "ref"
+  syntax val      ref      "" (*removed ref*)
 end
 
+(*
+
+(*update next*)
 module ref.Ref
   syntax val      (!_)     "!%1"      prec 1 0
   syntax val      (:=)     "%1 := %2" prec 15 14 15
@@ -94,23 +101,23 @@ module null.Null
   syntax val  get         "(fun x -> x)"
 
 end
-
+*) (*decommented this section, needs to be tested*)
 module int.Int
-  syntax val zero "Z.zero"
-  syntax val one  "Z.one"
+  syntax val zero "BigInt(0)"
+  syntax val one  "BigInt(1)"
 
-  syntax val (<)   "Z.lt"
-  syntax val (<=)  "Z.leq"
-  syntax val (>)   "Z.gt"
-  syntax val (>=)  "Z.geq"
-  syntax val (=)   "Z.equal"
+  syntax val (<)   "%1 < %2"
+  syntax val (<=)  "%1 <= %2"
+  syntax val (>)   "%1 > %2"
+  syntax val (>=)  "%1 >= %2"
+  syntax val (=)   "%1 == %2"
 
-  syntax val  (+)   "Z.add"
-  syntax val  (-)   "Z.sub"
-  syntax val  ( * ) "Z.mul"
-  syntax val  (-_)  "Z.neg"
+  syntax val  (+)   "%1 + %2"
+  syntax val  (-)   "%1 - %2"
+  syntax val  ( * ) "%1 * %2"
+  syntax val  (-_)  "-%1"
 end
-
+(*
 module int.Abs
   syntax val abs "Z.abs"
 end

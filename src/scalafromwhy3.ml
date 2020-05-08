@@ -17,6 +17,7 @@ open Pmodule
 open Wstdlib
 open Pdecl
 open Printer
+open Ity (*me*)
 
 type info = {
   info_syn          : syntax_map;
@@ -62,12 +63,6 @@ type info = {
   as           | 7
  *)
 
-(* src/util/pp.ml
-let rec print_list_suf sep print fmt = function
-  | [] -> ()
-  | x :: r -> print fmt x; sep fmt (); print_list_suf sep print fmt r
-
-*)
 
 module Print = struct
 
@@ -188,7 +183,7 @@ module Print = struct
   let protect_on ?(boxed=false) ?(be=false) b s =
     if b
     then if be
-         then "begin@;<1 2>@["^^ s ^^ "@] end"
+         then "{@;<1 2>@["^^ s ^^ "@] }"
          else "@[<1>(" ^^ s ^^ ")@]"
     else if not boxed then "@[<hv>" ^^ s ^^ "@]"
     else s
@@ -221,7 +216,6 @@ module Print = struct
     | Tvar tv ->
         print_tv ~use_quote fmt tv
     | Ttuple [] ->
-	(*ok*)
         fprintf fmt "Unit"
     | Ttuple [t] ->
         print_ty  ~use_quote ~paren info fmt t
@@ -488,41 +482,44 @@ module Print = struct
   and print_fun_type_args info fmt (args, s, res, e) =
     if Stv.is_empty s then
       fprintf fmt "@[%a@]:@ %a@ =@ @[<hv>%a@]" 
-	(*args:arguments res:type e:expression*)
         (print_list_suf space (print_vs_arg info)) args
         (print_ty ~use_quote:false info) res
         (print_expr ~opr:false info 18) e
     else
       let id_args = List.map (fun (id, _, _) -> id) args in
-      let arrow fmt () = fprintf fmt " ->@ " in
-      let start fmt () = fprintf fmt "fun@ " in
-      fprintf fmt ":@ @[<h>type @[%a@]. @[%a@ %a@]@] =e: @ \
-                   @[<hv 2>@[%a@]%a@]"
+      let arrow fmt () = fprintf fmt " => " in 
+      let start fmt () = fprintf fmt " " in 
+      fprintf fmt "@[<h>[%a]@] :@[%a@ %a@]@] = @ \
+                   @[<hv 2>@[%a@]%a@]" 
         print_svar s
         (print_list_suf arrow (print_vsty_fun info)) args
         (print_ty ~use_quote:false ~paren:true info) res
         (print_list_delim ~start ~stop:arrow ~sep:space (print_vs_fun info))
           id_args
         (print_expr ~opr:false info 18) e
-
   and print_let_def ?(functor_arg=false) info fmt = function
-    | Lvar (pv, e) ->
-        fprintf fmt "@[<hov 2>let %a =@ %a@]"
-          (print_lident info) (pv_name pv) (print_expr ~opr:false info 18) e
+    | Lvar (pv, e) -> 
+	let typetostring = function 
+	| Ityapp (_) -> 
+		"val"
+	| Ityvar (_) | Ityreg (_) ->
+		"var"
+	in 
+	let vorm = pv.pv_ity.ity_node in
+	let vartype = typetostring vorm in
+	fprintf fmt "@[<hov 2>%s %a =@ %a@]"
+          (vartype) (print_lident info) (pv_name pv) (print_expr ~opr:false info 18) e 
+
     | Lsym (rs, svar, res, args, ef) ->  
-	(*change: let to def*)
         fprintf fmt "@[<hov 2>def %a %a@]"
-	(*function name*)
           (print_lident info) rs.rs_name
-	(*?, var list, Stv.t, ty, ?*)
           (print_fun_type_args info) (args,svar,res,ef);
        forget_vars args
-    | Lrec rdef ->
+    | Lrec rdef -> 
         let print_one fst fmt = function
           | { rec_sym = rs1; rec_args = args; rec_exp = e;
               rec_res = res; rec_svar = s } ->
-              fprintf fmt "@[<hov 2>%s %a %a@]"
-                (if fst then "let rec" else "and")
+              fprintf fmt "@[<hov 2>def %a %a@]" 
                 (print_lident info) rs1.rs_name
                 (print_fun_type_args info) (args, s, res, e);
               forget_vars args in
@@ -553,9 +550,10 @@ module Print = struct
           | _ -> assert false in
         (match query_syntax info.info_literal id with
          | Some s -> syntax_arguments s print_constant fmt [e]
-         | None when n = "0" -> fprintf fmt "Z.zero"
-         | None when n = "1" -> fprintf fmt "Z.one"
-         | None   -> fprintf fmt (protect_on (prec < 4) "Z.of_string \"%s\"") n)
+	(*penser à remettre ces lignes de code pour enlever les parentheses (avec modification)*)
+         (*| None when n = "0" -> fprintf fmt "BigInt(0)"
+         | None when n = "1" -> fprintf fmt "BigInt(1)"*)
+         | None   -> fprintf fmt (protect_on (prec < 4) "BigInt(%s)") n)
     | Econst (Constant.ConstStr s) ->
         Constant.print_string_def fmt s
     | Econst (Constant.ConstReal _) -> assert false (* TODO *)
@@ -613,7 +611,7 @@ module Print = struct
     | Eif (e1, e2, {e_node = Eblock []}) ->
         fprintf fmt
           (protect_on (opr && prec < 16)
-             "@[<hv>@[<hv 2>if@ %a@]@ then %a@]")
+             "@[<hv>@[<hv 2>if@ %a@]@ %a@]")
           (print_expr ~opr:false info 15) e1 (print_expr ~be:true info 15) e2
     | Eif (e1, e2, e3) when is_false e2 && is_true e3 ->
         fprintf fmt (protect_on (prec < 4) "not %a")
@@ -625,9 +623,9 @@ module Print = struct
         fprintf fmt (protect_on (prec < 12) "@[<hv>%a && %a@]")
           (print_expr info 11) e1 (print_expr info 12) e2
     | Eif (e1, e2, e3) ->
-        fprintf fmt (protect_on (opr && prec < 16)
+        fprintf fmt (protect_on (opr && prec < 16) 
                        "@[<hv>@[<hv>if %a@]\
-                        @;<1 0>@[<hv 2>then@;%a@]\
+                        @;<1 0>@[<hv 2>@;%a@]\
                         @;<1 0>@[<hv 2>else@;%a@]@]")
           (print_expr ~opr:false info 15) e1
           (print_expr ~opr:false ~be:true info 15) e2
@@ -644,13 +642,13 @@ module Print = struct
           | h::t -> print_expr info 17 fmt h; semibreak fmt (); aux fmt t in
         fprintf fmt
           (if prec < 17
-           then "@[<hv>begin@;<1 2>@[<hv>%a@]@ end@]"
+           then "@[<hv>{@;<1 2>@[<hv>%a@]@ }@]"
            else "@[<hv>@[<hv>%a@]@]") aux el
     | Efun (varl, e) ->
         fprintf fmt (protect_on (opr && prec < 18) "@[<hv 2>fun %a ->@ %a@]")
           (print_list space (print_vs_arg info)) varl (print_expr info 17) e
-    | Ewhile (e1, e2) ->
-        fprintf fmt "@[<hv 2>while %a do@\n%a@;<1 -2>done@]"
+    | Ewhile (e1, e2) -> 
+        fprintf fmt "@[<hv 2>while(%a) {@\n%a@;<1 -2>}@]"
           (print_expr info 18) e1 (print_expr ~opr:false info 18) e2
     | Eraise (xs, e_opt) ->
         print_raise ~paren:(prec < 4) info xs fmt e_opt
@@ -763,12 +761,10 @@ module Print = struct
             (if its.its_private then "private " else "")
             (print_list newline print_field) fl
       | Some (Dalias ty) ->
-	(*same syntax in scala*)
           fprintf fmt " =@ %a" (print_ty ~use_quote:true ~paren:false info) ty
       | Some (Drange _) ->
           fprintf fmt " =@ Z.t"
       | Some (Dfloat _) ->
-	(*no equivalent in scala*)
           assert false (*TODO*)
     in
     let attrs = its.its_name.id_attrs in
