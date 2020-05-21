@@ -1,0 +1,3 @@
+use int.Int
+let sum (a : int) (b : int) c = a+b+c
+

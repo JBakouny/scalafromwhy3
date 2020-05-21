@@ -73,16 +73,16 @@ end
 module Ref
   syntax type     ref      "%1 ref"
   syntax val contents "Pervasives.contents" prec 1 0
-  syntax val      ref      "" (*removed ref*)
+  syntax val      ref      "%1"
 end
+
+
+module ref.Ref
+  syntax val      (!_)     "%d1"      prec 1 0
+  syntax val      (:=)     "%d1 = %2" prec 15 14 15
+end 
 
 (*
-
-(*update next*)
-module ref.Ref
-  syntax val      (!_)     "!%1"      prec 1 0
-  syntax val      (:=)     "%1 := %2" prec 15 14 15
-end
 
 module ref.Refint
   syntax val incr "(fun r -> r := Z.succ !r) %1" prec 4 3
@@ -221,13 +221,14 @@ module fmap.MapImpInt
   syntax val  clear    "Hashtbl.clear"
 end
 
+*)
 module array.Array
-  syntax type array "%1 array"
+  syntax type array "Array[%1]" (*mod*)
 
   (* syntax exception OutOfBounds "Why3__Array.OutOfBounds" *) (* FIXME *)
 
-  syntax val ([])          "%1.(Z.to_int %2)" prec 2 1 3
-  syntax val ([]<-)        "%1.(Z.to_int %2) <- %3" prec 15 2 1 15
+  syntax val ([])          "%1(%2.toInt)" prec 2 1 3 (*mod*)
+  syntax val ([]<-)        "%1(%2) = %3" prec 15 2 1 15 (*mod*)
   syntax val length        "Z.of_int (Array.length %1)" prec 4 3
   syntax val defensive_get "%1.(Z.to_int %2)" prec 2 1 3
   syntax val defensive_set "%1.(Z.to_int %2) <- %3" prec 15 2 1 15
@@ -239,6 +240,8 @@ module array.Array
   syntax val fill          "Array.fill %1 (Z.to_int %2) (Z.to_int %3) %4" prec 4 3 3 3
   syntax val blit          "Array.blit %1 (Z.to_int %2) %3 (Z.to_int %4) (Z.to_int %5)" prec 4
 end
+
+(*
 
 module array.Init
   syntax val init "Array.init (Z.to_int %1) (fun i -> %2 (Z.of_int i))" prec 4 3 14

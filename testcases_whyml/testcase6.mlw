@@ -1,0 +1,7 @@
+use int.Int
+
+let f (x:int) (y:int) : int = x+y
+let g (x:int) (y:int) : int = x-y
+let h (x:int) : int = -x
+let i (x:int) (y:int) : int = x*y
+let lessthan (x:int) (y:int) : bool = (x<y)

@@ -199,6 +199,19 @@ module Print = struct
         print_list2 sep sep_m print1 print2 fmt (r1, r2)
     | _ -> ()
 
+ (*
+
+let print_list sep print fmt = function
+  | [] -> ()
+  | [x] -> print fmt x
+  | x :: r -> print fmt x; print_list_pre sep print fmt r
+
+let rec print_list_pre sep print fmt = function
+  | [] -> ()
+  | x :: r -> sep fmt (); print fmt x; print_list_pre sep print fmt r
+
+*)
+
   let complex_syntax s =
     String.contains s '%' || String.contains s ' ' || String.contains s '('
 
@@ -220,8 +233,8 @@ module Print = struct
     | Ttuple [t] ->
         print_ty  ~use_quote ~paren info fmt t
     | Ttuple tl ->
-        fprintf fmt (protect_on paren "@[%a@]")
-          (print_list star (print_ty ~use_quote ~paren:true info)) tl
+        fprintf fmt (protect_on paren "@[(%a)@]") (*ajouté parenthèses*)
+          (print_list comma (print_ty ~use_quote ~paren:false info)) tl (*replaced star by comma, true by false*)
     | Tapp (ts, tl) ->
         match query_syntax info.info_syn ts with
         | Some s when complex_syntax s ->
@@ -388,8 +401,8 @@ module Print = struct
     | _ -> assert false end
 
   let print_for_direction fmt = function
-    | To     -> fprintf fmt "to"
-    | DownTo -> fprintf fmt "downto"
+    | To     -> fprintf fmt "1" (*was to*)
+    | DownTo -> fprintf fmt "-1"(*was downto*)
 
   let rec print_apply_args info fmt = function
     | expr :: exprl, pv :: pvl ->
@@ -421,7 +434,7 @@ module Print = struct
     if rs_equal rs rs_ref_proj
     then
       match pvl with
-      | [x] -> fprintf fmt "!%a" (print_expr info 1) x
+      | [x] -> fprintf fmt "%a" (print_expr info 1) x (*removed ! before*)
       | _ -> assert false
     else
       match query_syntax info.info_syn rs.rs_name, pvl with
@@ -481,7 +494,7 @@ module Print = struct
 
   and print_fun_type_args info fmt (args, s, res, e) =
     if Stv.is_empty s then
-      fprintf fmt "@[%a@]:@ %a@ =@ @[<hv>%a@]" 
+      fprintf fmt "@[%a@]:@ %a@ = {@ @[<hv>%a}@]" (*added {}*)
         (print_list_suf space (print_vs_arg info)) args
         (print_ty ~use_quote:false info) res
         (print_expr ~opr:false info 18) e
@@ -499,14 +512,14 @@ module Print = struct
         (print_expr ~opr:false info 18) e
   and print_let_def ?(functor_arg=false) info fmt = function
     | Lvar (pv, e) -> 
-	let typetostring = function 
-	| Ityapp (_) -> 
-		"val"
-	| Ityvar (_) | Ityreg (_) ->
-		"var"
-	in 
-	let vorm = pv.pv_ity.ity_node in
-	let vartype = typetostring vorm in
+	let typetostring = function
+		(*dans le futur on pourra ecrire une autre fonction pr traduire le e*)
+	  	| Eapp (rs, [e]) when rs_equal rs Pmodule.rs_ref -> "var"
+		| _ -> "val" in 
+	  (*| Ityapp (its, _, _) when its_equal its Pmodule.its_ref -> "var"
+  	  | _ -> "val"*)
+	
+	let vartype = typetostring e.e_node in  
 	fprintf fmt "@[<hov 2>%s %a =@ %a@]"
           (vartype) (print_lident info) (pv_name pv) (print_expr ~opr:false info 18) e 
 
@@ -550,7 +563,6 @@ module Print = struct
           | _ -> assert false in
         (match query_syntax info.info_literal id with
          | Some s -> syntax_arguments s print_constant fmt [e]
-	(*penser à remettre ces lignes de code pour enlever les parentheses (avec modification)*)
          (*| None when n = "0" -> fprintf fmt "BigInt(0)"
          | None when n = "1" -> fprintf fmt "BigInt(1)"*)
          | None   -> fprintf fmt (protect_on (prec < 4) "BigInt(%s)") n)
@@ -560,7 +572,7 @@ module Print = struct
     | Evar pvs ->
         (print_lident info) fmt (pv_name pvs)
     | Elet (let_def, e) ->
-        fprintf fmt (protect_on ~boxed (opr && prec < 18) "@[%a in@]@;%a")
+        fprintf fmt (protect_on ~boxed (opr && prec < 18) "@[%a ;@]@;%a")
           (print_let_def info) let_def (print_expr ~boxed:true ~opr info 18) e;
         forget_let_defn let_def
     | Eabsurd ->
@@ -575,7 +587,7 @@ module Print = struct
         print_expr ~boxed ~opr ~be info prec fmt e
     | Eapp (rs, pvl) ->
         print_apply info prec rs fmt pvl
-    | Ematch (e1, [p, e2], []) ->
+    | Ematch (e1, [p, e2], []) -> (*?*)
         fprintf fmt (protect_on (opr && prec < 18) "let %a =@ %a in@ %a")
           (print_pat info 6) p (print_expr ~opr:false info 18) e1
           (print_expr ~opr info 18) e2
@@ -584,12 +596,13 @@ module Print = struct
           (if prec < 18 && opr
            then "@[<hv>@[<hv 2>begin@ match@ %a@]@ with@]@\n@[<hv>%a@]@\nend"
            else "@[<hv>@[<hv 2>match@ %a@]@ with@]@\n@[<hv>%a@]")
+	  (*"@[<hv>@[<hv 2>%a match {@]@ @\n@[<hv>%a@]" ?*)
           (print_expr info 18) e
           (print_list newline (print_branch info)) pl
     | Eassign al ->
         let assign fmt (rho, rs, e) =
           if rs_equal rs rs_ref_proj
-          then fprintf fmt "@[<hv 2>%a :=@ %a@]"
+          then fprintf fmt "@[<hv 2>%a =@ %a@]" (*replaced := by =*)
                  (print_lident info) (pv_name rho) (print_expr info 15) e
           else if is_field rs
           then fprintf fmt "@[<hv 2>%a.%a <-@ %a@]"
@@ -631,7 +644,7 @@ module Print = struct
           (print_expr ~opr:false ~be:true info 15) e2
           (print_expr ~be:true info 15) e3
     | Eblock [] ->
-        fprintf fmt "()"
+        fprintf fmt "()" (*?*)
     | Eblock [e] ->
         print_expr ~be info prec fmt e
     | Eblock el ->
@@ -653,23 +666,23 @@ module Print = struct
     | Eraise (xs, e_opt) ->
         print_raise ~paren:(prec < 4) info xs fmt e_opt
     | Efor (pv1, pv2, dir, pv3, e) ->
-        if is_mapped_to_int info pv1.pv_ity then begin
-          fprintf fmt "@[<hv 2>for %a = %a %a %a do@ @[%a@]@ done@]"
+        if (*is_mapped_to_int info pv1.pv_ity*) true then begin
+          fprintf fmt "@[<hv 2>for (%a <- %a to %a by %a) {@ @[%a@]@ }@]"
             (print_lident info) (pv_name pv1) (print_lident info) (pv_name pv2)
-            print_for_direction dir (print_lident info) (pv_name pv3)
+            (print_lident info) (pv_name pv3) print_for_direction dir
             (print_expr ~opr:false info 18) e;
           forget_pv pv1 end
         else
           let for_id  = id_register (id_fresh "for_loop_to") in
           let cmp, op = match dir with
-            | To     -> "Z.leq", "Z.succ"
-            | DownTo -> "Z.geq", "Z.pred" in
+            | To     -> "<=", "Z.succ"
+            | DownTo -> ">=", "Z.pred" in
           fprintf fmt (protect_on_be (opr && prec < 18)
-                         "@[<hv 2>let rec %a %a =@ \
-                          @[<hv 2>if %s %a %a@]@;<1 0>\
-                          @[<hv 2>then begin@ %a;@ %a (%s %a)@;<1 -2>end@]@;<1 -2>in %a %a@]")
+                         "@[<hv 2>def %a %a =@ \
+                          @[<hv 2>if (%a %s %a) @]@;<1 0>\
+                          @[<hv 2>%a;@ %a (%s %a)@;<1 -2>}@]@;<1 -2>in %a %a@]")
           (* let rec *) (print_lident info) for_id (print_pv info) pv1
-          (* if      *)  cmp (print_pv info) pv1 (print_pv info) pv3
+          (* if      *)  (print_pv info) pv1 cmp (print_pv info) pv3
           (* then    *) (print_expr info 16) e (print_lident info) for_id
                         op (print_pv info) pv1
           (* in      *) (print_lident info) for_id (print_pv info) pv2
@@ -700,7 +713,7 @@ module Print = struct
           (print_expr info 3) e
 
   and print_branch info fmt (p, e) =
-    fprintf fmt "@[<hv 2>| %a ->@ @[%a@]@]"
+    fprintf fmt "@[<hv 2>case %a =>@ @[%a@]@]" (*replaced | by case and -> by =>*)
       (print_pat info 5) p (print_expr info 17) e;
     forget_pat p
 
