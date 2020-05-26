@@ -1,0 +1,4 @@
+use int.Int
+use ref.Ref
+let x : int = 1
+let y = ref 0

@@ -1,3 +1,0 @@
-use int.Int
-let x = 3
-let ref y = 0

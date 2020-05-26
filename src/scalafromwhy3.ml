@@ -17,7 +17,7 @@ open Pmodule
 open Wstdlib
 open Pdecl
 open Printer
-open Ity (*me*)
+open Ity 
 
 type info = {
   info_syn          : syntax_map;
@@ -180,7 +180,7 @@ module Print = struct
     fprintf fmt (if use_quote then "'%s" else "%s")
       (id_unique aprinter tv.tv_name)
 
-  let protect_on ?(boxed=false) ?(be=false) b s =
+  let protect_on ?(boxed=false) ?(be=false) b s = 
     if b
     then if be
          then "{@;<1 2>@["^^ s ^^ "@] }"
@@ -233,8 +233,10 @@ let rec print_list_pre sep print fmt = function
     | Ttuple [t] ->
         print_ty  ~use_quote ~paren info fmt t
     | Ttuple tl ->
-        fprintf fmt (protect_on paren "@[(%a)@]") (*ajouté parenthèses*)
-          (print_list comma (print_ty ~use_quote ~paren:false info)) tl (*replaced star by comma, true by false*)
+	(*added parenthesis:*)
+        fprintf fmt (protect_on paren "@[(%a)@]") 
+	  (*replaced star by comma, true by false in:*)
+          (print_list comma (print_ty ~use_quote ~paren:false info)) tl 
     | Tapp (ts, tl) ->
         match query_syntax info.info_syn ts with
         | Some s when complex_syntax s ->
@@ -384,11 +386,6 @@ let rec print_list_pre sep print fmt = function
         Loc.errorm ?loc "Symbol %a cannot be extracted" (print_lident info) id
     | _ -> ()
 
-  let is_mapped_to_int info ity =
-    match ity.ity_node with
-    | Ityapp ({ its_ts = ts }, _, _) ->
-        query_syntax info.info_syn ts.ts_name = Some "int"
-    | _ -> false
 
   let print_constant fmt e = begin match e.e_node with
     | Econst (Constant.ConstInt c) ->
@@ -401,8 +398,8 @@ let rec print_list_pre sep print fmt = function
     | _ -> assert false end
 
   let print_for_direction fmt = function
-    | To     -> fprintf fmt "1" (*was to*)
-    | DownTo -> fprintf fmt "-1"(*was downto*)
+    | To     -> fprintf fmt "1"
+    | DownTo -> fprintf fmt "-1"
 
   let rec print_apply_args info fmt = function
     | expr :: exprl, pv :: pvl ->
@@ -494,7 +491,8 @@ let rec print_list_pre sep print fmt = function
 
   and print_fun_type_args info fmt (args, s, res, e) =
     if Stv.is_empty s then
-      fprintf fmt "@[%a@]:@ %a@ = {@ @[<hv>%a}@]" (*added {}*)
+	(*added {}*)
+      fprintf fmt "@[%a@]:@ %a@ = {@ @[<hv>%a}@]"
         (print_list_suf space (print_vs_arg info)) args
         (print_ty ~use_quote:false info) res
         (print_expr ~opr:false info 18) e
@@ -552,8 +550,7 @@ let rec print_list_pre sep print fmt = function
     | Lany ({rs_name}, _, _, _) -> check_val_in_drv info rs_name.id_loc rs_name
 
   and print_expr ?(boxed=false) ?(opr=true) ?(be=false) info prec fmt e =
-    let protect_on_be ?(boxed=false) b s = protect_on ~boxed ~be:true b s in
-    let protect_on ?(boxed=false) b s = protect_on ~boxed ~be b s in
+    let protect_on ?(boxed=false) b s = protect_on ~boxed ~be:true b s in (*be:true?*)
     match e.e_node with
     | Econst (Constant.ConstInt c) ->
         let n = c.Number.il_int in
@@ -576,7 +573,7 @@ let rec print_list_pre sep print fmt = function
           (print_let_def info) let_def (print_expr ~boxed:true ~opr info 18) e;
         forget_let_defn let_def
     | Eabsurd ->
-        fprintf fmt (protect_on (opr && prec < 4) "assert false (* absurd *)")
+        fprintf fmt (protect_on (opr && prec < 4) "assert(false)") (*mod*)
     | Eapp (rs, []) when rs_equal rs rs_true ->
         fprintf fmt "true"
     | Eapp (rs, []) when rs_equal rs rs_false ->
@@ -644,7 +641,7 @@ let rec print_list_pre sep print fmt = function
           (print_expr ~opr:false ~be:true info 15) e2
           (print_expr ~be:true info 15) e3
     | Eblock [] ->
-        fprintf fmt "()" (*?*)
+        fprintf fmt "{}" 
     | Eblock [e] ->
         print_expr ~be info prec fmt e
     | Eblock el ->
@@ -666,26 +663,11 @@ let rec print_list_pre sep print fmt = function
     | Eraise (xs, e_opt) ->
         print_raise ~paren:(prec < 4) info xs fmt e_opt
     | Efor (pv1, pv2, dir, pv3, e) ->
-        if (*is_mapped_to_int info pv1.pv_ity*) true then begin
-          fprintf fmt "@[<hv 2>for (%a <- %a to %a by %a) {@ @[%a@]@ }@]"
-            (print_lident info) (pv_name pv1) (print_lident info) (pv_name pv2)
-            (print_lident info) (pv_name pv3) print_for_direction dir
-            (print_expr ~opr:false info 18) e;
-          forget_pv pv1 end
-        else
-          let for_id  = id_register (id_fresh "for_loop_to") in
-          let cmp, op = match dir with
-            | To     -> "<=", "Z.succ"
-            | DownTo -> ">=", "Z.pred" in
-          fprintf fmt (protect_on_be (opr && prec < 18)
-                         "@[<hv 2>def %a %a =@ \
-                          @[<hv 2>if (%a %s %a) @]@;<1 0>\
-                          @[<hv 2>%a;@ %a (%s %a)@;<1 -2>}@]@;<1 -2>in %a %a@]")
-          (* let rec *) (print_lident info) for_id (print_pv info) pv1
-          (* if      *)  (print_pv info) pv1 cmp (print_pv info) pv3
-          (* then    *) (print_expr info 16) e (print_lident info) for_id
-                        op (print_pv info) pv1
-          (* in      *) (print_lident info) for_id (print_pv info) pv2
+	fprintf fmt "@[<hv 2>for (%a <- %a to %a by %a) {@ @[%a@]@ }@]"
+	  (print_lident info) (pv_name pv1) (print_lident info) (pv_name pv2)
+	  (print_lident info) (pv_name pv3) print_for_direction dir
+	  (print_expr ~opr:false info 18) e;
+	forget_pv pv1 
     | Ematch (e, [], xl) ->
         fprintf fmt
           (if prec < 18 && opr
@@ -711,7 +693,7 @@ let rec print_list_pre sep print fmt = function
     | Eignore e ->
         fprintf fmt (protect_on (prec < 4)"ignore %a")
           (print_expr info 3) e
-
+(*to be updated*)
   and print_branch info fmt (p, e) =
     fprintf fmt "@[<hv 2>case %a =>@ @[%a@]@]" (*replaced | by case and -> by =>*)
       (print_pat info 5) p (print_expr info 17) e;

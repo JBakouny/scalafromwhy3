@@ -31,16 +31,17 @@ end
 module bool.Ite
   syntax val ite "if %1 then %2 else %3" prec 16 15 15 15
 end
-
-(*update*)
+*)
+(*test*) 
 module bool.Bool
   syntax val andb  "%1 && %2"      prec 12 11 12
   syntax val orb   "%1 || %2"      prec 13 12 13
-  syntax val xorb  "%1 <> %2"      prec 11 11 10
-  syntax val notb  "not %1"        prec 4 3
-  syntax val implb "not %1 || %2"  prec 13 3 13
+  syntax val xorb  "%1 != %2"      prec 11 11 10 (*mod test*)
+  syntax val notb  "!(%1)"        prec 4 3 (*mod*)
+  syntax val implb "!(%1 || %2)"  prec 13 3 13 (*mod*)
 end
 
+(*
 module list.List
   syntax type     list "%1 list"
   syntax val Nil  "[]"
@@ -78,8 +79,8 @@ end
 
 
 module ref.Ref
-  syntax val      (!_)     "%d1"      prec 1 0
-  syntax val      (:=)     "%d1 = %2" prec 15 14 15
+  syntax val      (!_)     "%1"      prec 1 0
+  syntax val      (:=)     "%1 = %2" prec 15 14 15
 end 
 
 (*
@@ -101,7 +102,7 @@ module null.Null
   syntax val  get         "(fun x -> x)"
 
 end
-*) (*decommented this section, needs to be tested*)
+*) 
 module int.Int
   syntax val zero "BigInt(0)"
   syntax val one  "BigInt(1)"
