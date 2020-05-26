@@ -621,16 +621,16 @@ let rec print_list_pre sep print fmt = function
     | Eif (e1, e2, {e_node = Eblock []}) ->
         fprintf fmt
           (protect_on (opr && prec < 16)
-             "@[<hv>@[<hv 2>if@ %a@]@ %a@]")
+             "@[<hv>@[<hv 2>if@ (%a)@]@ %a@]")
           (print_expr ~opr:false info 15) e1 (print_expr ~be:true info 15) e2
     | Eif (e1, e2, e3) when is_false e2 && is_true e3 ->
-        fprintf fmt (protect_on (prec < 4) "not %a")
+        fprintf fmt (protect_on (prec < 4) "(!%a)")
           (print_expr info 3) e1
     | Eif (e1, e2, e3) when is_true e2 ->
-        fprintf fmt (protect_on (prec < 13) "@[<hv>%a || %a@]")
+        fprintf fmt (protect_on (prec < 13) "@[<hv>(%a || %a)@]")
           (print_expr info 12) e1 (print_expr info 13) e3
     | Eif (e1, e2, e3) when is_false e3 ->
-        fprintf fmt (protect_on (prec < 12) "@[<hv>%a && %a@]")
+        fprintf fmt (protect_on (prec < 12) "@[<hv>(%a && %a)@]")
           (print_expr info 11) e1 (print_expr info 12) e2
     | Eif (e1, e2, e3) ->
         fprintf fmt (protect_on (opr && prec < 16) 
