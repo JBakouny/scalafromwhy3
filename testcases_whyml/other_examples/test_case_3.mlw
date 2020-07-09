@@ -1,0 +1,9 @@
+
+
+
+
+
+let power (x y:int) : int = x 
+
+let intid (x:int) : int = power x x 
+

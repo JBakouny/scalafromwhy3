@@ -1,0 +1,27 @@
+module MaxAndSum
+
+  use import int.Int
+  use import ref.Ref
+  use import array.Array
+
+  let max_sum (a: array int) (n: int) : (int, int)
+    requires { n = length a }
+    requires { forall i. 0 <= i < n -> a[i] >= 0 }
+    returns { sum, max -> sum <= n * max }
+  = let sum = ref 0 in
+    let max = ref 0 in
+    for i = 0 to n - 1 do
+      invariant { !sum <= i * !max }
+      if !max < a[i] then max := a[i];
+      sum := !sum + a[i]
+    done;
+    !sum, !max
+  
+  let test () =
+    let n = 10 in
+    let a = make n 0 in
+    a[0] <- 9; a[1] <- 5; a[2] <- 0; a[3] <- 2; a[4] <- 7;
+    a[5] <- 3; a[6] <- 2; a[7] <- 1; a[8] <- 10; a[9] <- 6;
+    max_sum a n
+
+end
