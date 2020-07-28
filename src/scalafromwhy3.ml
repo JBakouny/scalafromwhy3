@@ -238,6 +238,12 @@ let rec print_list_pre sep print fmt = function
         fprintf fmt (protect_on paren "@[(%a)@]") 
 	  (*replaced star by comma, true by false in:*)
           (print_list comma (print_ty ~use_quote ~paren:false info)) tl 
+    (*TODO *)
+    (*| Tarrow (a, b) ->
+        fprintf fmt (protect_on paren "%a => %a")
+          (print_ty ~use_quote ~paren info) a
+          (print_ty ~use_quote ~paren info) b*)
+
     | Tapp (ts, tl) ->
         match query_syntax info.info_syn ts with
         | Some s when complex_syntax s ->
@@ -488,7 +494,8 @@ let rec print_list_pre sep print fmt = function
            (print_apply_args info) (tl, rs.rs_cty.cty_args)
 
   and print_svar fmt s =
-    print_list space (print_tv ~use_quote:false) fmt (Stv.elements s)
+    (*change space to comma*)
+    print_list comma (print_tv ~use_quote:false) fmt (Stv.elements s)
 
   and print_fun_type_args info fmt (args, s, res, e) =
     if Stv.is_empty s then
@@ -506,7 +513,8 @@ let rec print_list_pre sep print fmt = function
         print_svar s
         (print_list_suf arrow (print_vsty_fun info)) args
         (print_ty ~use_quote:false ~paren:true info) res
-        (print_list_delim ~start ~stop:arrow ~sep:space (print_vs_fun info))
+        (*change sep:space to arrow*)
+        (print_list_delim ~start ~stop:arrow ~sep:arrow (print_vs_fun info))
           id_args
         (print_expr ~opr:false info 18) e
   and print_let_def ?(functor_arg=false) info fmt = function
@@ -658,14 +666,14 @@ let rec print_list_pre sep print fmt = function
     | Efun (varl, e) ->
         fprintf fmt (protect_on (opr && prec < 18) "@[<hv 2>fun %a ->@ %a@]")
           (print_list space (print_vs_arg info)) varl (print_expr info 17) e
-    | Ewhile (e1, e2) -> 
-        fprintf fmt "@[<hv 2>while(%a) {@\n%a@;<1 -2>}@]"
-          (print_expr info 18) e1 (print_expr ~opr:false info 18) e2
+    | Ewhile (e1,e2) -> fprintf fmt "@[<hv 2>while (%a) { %a@;<1 -2>@}@]"
+                     (print_expr info 18) e1
+                     (print_expr ~opr:false info 18) e2
     | Eraise (xs, e_opt) ->
         print_raise ~paren:(prec < 4) info xs fmt e_opt
     | Efor (pv1, pv2, dir, pv3, e) ->
-	fprintf fmt "@[<hv 2>for (%a <- %a to %a by %a) {@ @[%a@]@ }@]"
-	  (print_lident info) (pv_name pv1) (print_lident info) (pv_name pv2)
+        fprintf fmt "@[<hv 2>for (%a <- %a to %a by %a) {@ @[%a@]@ }@]"
+          (print_lident info) (pv_name pv1) (print_lident info) (pv_name pv2)
 	  (print_lident info) (pv_name pv3) print_for_direction dir
 	  (print_expr ~opr:false info 18) e;
 	forget_pv pv1 

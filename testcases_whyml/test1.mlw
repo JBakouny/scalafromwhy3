@@ -1,0 +1,5 @@
+let f = fun (x:int) -> fun (y:int) -> (x,y)
+
+(*let f (x:int) (y:int) (z:int) : (int,int,int) =
+   Format.printf "(%d,%d,%d)" x y z
+let f x y = (x,y)*)
