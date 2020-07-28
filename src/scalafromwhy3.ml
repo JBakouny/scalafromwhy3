@@ -189,6 +189,7 @@ module Print = struct
     else s
 
   let star fmt () = fprintf fmt " *@ "
+  let ntg fmt () = fprintf fmt ""
 
   let rec print_list2 sep sep_m print1 print2 fmt (l1, l2) =
     match l1, l2 with
@@ -251,7 +252,7 @@ let rec print_list_pre sep print fmt = function
             | [] ->
                 (print_lident info) fmt ts
             | [ty] ->
-                fprintf fmt (protect_on paren "%a@ %a")
+                fprintf fmt (protect_on paren "(x :%a@ %a)")
                   (print_ty ~use_quote ~paren:true info) ty (print_lident info)
                   ts
             | tl ->
@@ -738,11 +739,18 @@ let rec print_list_pre sep print fmt = function
         (print_list comma print_var) pvl (print_expr info 17) e
 
   let print_type_decl info fst fmt its =
+	(* TODO remove fst from function arg in the future *)
     let print_constr fmt (id, cs_args) =
       match cs_args with
-      | [] -> fprintf fmt "@[<hov 4>| %a@]" (print_uident info) id
-      | l -> fprintf fmt "@[<hov 4>| %a of %a@]" (print_uident info) id
-               (print_list star (print_ty ~use_quote:true ~paren:false info)) l in
+	(* changed the fprintf syntaxe *)
+      | [] -> fprintf fmt "@[<hov 4>final case object %a extends %a@]" (print_uident info) id
+			(print_lident info) its.its_name
+	(* changed the fprintf syntaxe *)
+	(* changed the argument of print_list from star to ntg*)
+      | l -> fprintf fmt "@[<hov 4>final case class %a %a extends %a@]" (print_uident info) id
+               (print_list ntg (print_ty ~use_quote:true ~paren:false info)) l
+		(print_lident info) its.its_name in
+
     let print_field fmt (is_mutable, id, ty) =
       fprintf fmt "%s%a: @[%a@];" (if is_mutable then "mutable " else "")
         (print_lident info) id (print_ty ~use_quote:true ~paren:false info) ty in
@@ -750,7 +758,7 @@ let rec print_list_pre sep print fmt = function
       | None ->
           ()
       | Some (Ddata csl) ->
-          fprintf fmt " =@\n%a" (print_list newline print_constr) csl
+          fprintf fmt "\n%a" (print_list newline print_constr) csl
       | Some (Drecord fl) ->
           fprintf fmt " = %s{@\n%a@\n}"
             (if its.its_private then "private " else "")
@@ -765,7 +773,7 @@ let rec print_list_pre sep print fmt = function
     let attrs = its.its_name.id_attrs in
     if not (is_ocaml_remove ~attrs) then
       fprintf fmt "@[<hov 2>@[%s %a%a@]%a@]"
-        (if fst then "type" else "and") (print_tv_args ~use_quote:true) its.its_args
+        ("abstract sealed class") (print_tv_args ~use_quote:true) its.its_args
         (print_lident info) its.its_name print_def its.its_def
 
   let rec is_signature_decl info = function
