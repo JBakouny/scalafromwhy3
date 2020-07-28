@@ -1,0 +1,20 @@
+type option 'a = None | Some (int) (string)
+type option2 'a = None2 | Some2 int int
+
+type tree 'a = 
+	| Empty
+	| NonEmpty 'a (tree 'a) (tree 'a)
+
+(* Without generics [Nothing] *)
+type tree2 = 
+	| Empty2
+	| NonEmpty2 int tree2 tree2
+
+let f x = x
+let g() = f Empty
+let a = 5
+let h() = f a 
+
+type t =
+  | MayBe (size: int) (option int)
+  | Many  (size: int) (option int)
