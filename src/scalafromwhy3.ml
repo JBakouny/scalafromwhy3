@@ -201,8 +201,9 @@ module Print = struct
 
 
   let star fmt () = fprintf fmt " *@ "
-(* Added ntg *)
+(* Added ntg, comma_without_new_line *)
   let ntg fmt () = fprintf fmt ""
+  let comma_without_new_line fmt () = fprintf fmt ", "
 
   let rec print_list2 sep sep_m print1 print2 fmt (l1, l2) =
     match l1, l2 with
@@ -360,7 +361,7 @@ let rec print_list_pre sep print fmt = function
   let print_tv_args fmt = function
     | []   -> ()
     | tvl  ->
-        fprintf fmt "[%a]@ " (print_list comma (print_tv ~use_quote:true)) tvl
+        fprintf fmt "[%a]" (print_list comma_without_new_line (print_tv ~use_quote:true)) tvl
 
   let print_vs_arg info fmt vs =
     fprintf fmt "@[%a@]" (print_vsty info) vs
@@ -842,7 +843,7 @@ let rec print_list_pre sep print fmt = function
     in
     let attrs = its.its_name.id_attrs in
     if not (is_ocaml_remove ~attrs) then
-      fprintf fmt "@[<hov 2>@[%s %a%a@]%a@]"
+      fprintf fmt "%s %a%a%a"
         ("abstract sealed class") 
         (print_lident info) its.its_name (print_tv_args) its.its_args print_def its.its_def
 
