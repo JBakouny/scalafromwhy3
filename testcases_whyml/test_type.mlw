@@ -10,8 +10,13 @@ type tree2 =
 	| Empty2
 	| NonEmpty2 int tree2 tree2
 
-type list 'ac 'b1 = Nil | Cons 'ac (list 'ac 'b1)
+type list 'a = Nil | Cons 'a (list 'a)
 
 type list2 = Nil2 | Cons2 int list2
+
+let f x = x
+let g() = f Empty
+let a = 5
+let h() = f a 
 
 

@@ -267,12 +267,15 @@ let rec print_list_pre sep print fmt = function
                 (print_lident info) fmt ts
             | [ty] ->
                 fprintf fmt (protect_on paren "%a@ %a")
-                  (print_ty ~use_quote ~paren:true info) ty (print_lident info)
-                  ts
+		  (print_lident info) ts
+                  (print_ty ~use_quote ~paren:true info) ty 
+      		 
             | tl ->
-                fprintf fmt (protect_on paren "(%a)@ %a")
-                  (print_list comma (print_ty ~use_quote ~paren:false info)) tl
-                  (print_lident info) ts
+                let arrow fmt () = fprintf fmt " => " in
+                fprintf fmt (protect_on paren "%a %a")
+ 	 	  (print_lident info) ts
+                  (print_list arrow (print_ty ~use_quote ~paren:false info)) tl
+                  
 
 (* Added print_ty2 *)      
   let rec print_ty2 ~use_quote ?(paren=false) info fmt = function
@@ -291,10 +294,10 @@ let rec print_list_pre sep print fmt = function
         match query_syntax info.info_syn ts with
         | Some s when complex_syntax s ->
             fprintf fmt (protect_on paren "%a")
-              (syntax_arguments s (print_ty2 ~use_quote:true ~paren:true info)) tl
+              (syntax_arguments s (print_ty2 ~use_quote ~paren:true info)) tl
         | Some s ->
            fprintf fmt (protect_on paren "%a%s")
-             (print_list_suf space (print_ty2 ~use_quote:true ~paren:true info)) tl 
+             (print_list_suf space (print_ty2 ~use_quote ~paren:true info)) tl 
              s
         | None   ->
 		(* Added [] *)
@@ -304,11 +307,11 @@ let rec print_list_pre sep print fmt = function
             | [ty] ->
                 fprintf fmt (protect_on paren "%a@ [%a]")
                   (print_lident info) ts
-		(print_ty2 ~use_quote:true ~paren:true info) ty
+		(print_ty2 ~use_quote ~paren:true info) ty
             | tl ->
                 fprintf fmt (protect_on paren "%a@ [%a]")
 		  (print_lident info) ts
-                  (print_list comma (print_ty2 ~use_quote:true ~paren:false info)) tl
+                  (print_list comma (print_ty2 ~use_quote ~paren:false info)) tl
 
   let print_vsty_opt info fmt id ty =
     fprintf fmt "?%s:(%a:@ %a)" id.id_string (print_lident info) id
@@ -465,7 +468,7 @@ let rec print_list_pre sep print fmt = function
         else if is_named ~attrs:(pv_name pv).id_attrs then
           fprintf fmt "~%s:%a" (pv_name pv).id_string
             (print_expr info 1) expr
-        else fprintf fmt "%a" (print_expr info 3) expr;
+        else fprintf fmt "(%a)" (print_expr info 3) expr;
         if exprl <> [] then fprintf fmt "@ ";
         print_apply_args info fmt (exprl, pvl)
     | expr :: exprl, [] ->
@@ -546,19 +549,19 @@ let rec print_list_pre sep print fmt = function
   and print_fun_type_args info fmt (args, s, res, e) =
     if Stv.is_empty s then
 	(*added {}*)
-      fprintf fmt "@[%a@]:@ %a@ = {@ @[<hv>%a}@]"
+      fprintf fmt "@[%a@]:@ %a@ = {@ @[<hv>(%a)}@]"
         (print_list_suf space (print_vs_arg info)) args
-        (print_ty ~use_quote:false info) res
+        (print_ty2 ~use_quote:false info) res
         (print_expr ~opr:false info 18) e
     else
-      let id_args = List.map (fun (id, _, _) -> id) args in
+      let id_args = List.map (fun (id,_,_) -> (id)) args in
       let arrow fmt () = fprintf fmt " => " in 
       let start fmt () = fprintf fmt " " in 
-      fprintf fmt "@[<h>[%a]@] :@[%a@ %a@]@] = @ \
+      fprintf fmt "@[<h>[%a]@] :@[(%a)@ %a@]@] = @ \
                    @[<hv 2>@[%a@]%a@]" 
         print_svar s
         (print_list_suf arrow (print_vsty_fun info)) args
-        (print_ty ~use_quote:false ~paren:true info) res
+        (print_ty2 ~use_quote:false ~paren:true info) res
         (*change sep:space to arrow*)
         (print_list_delim ~start ~stop:arrow ~sep:arrow (print_vs_fun info))
           id_args
@@ -710,7 +713,7 @@ let rec print_list_pre sep print fmt = function
            then "@[<hv>{@;<1 2>@[<hv>%a@]@ }@]"
            else "@[<hv>@[<hv>%a@]@]") aux el
     | Efun (varl, e) ->
-        fprintf fmt (protect_on (opr && prec < 18) "@[<hv 2>fun %a ->@ %a@]")
+        fprintf fmt (protect_on (opr && prec < 18) "@[<hv 2>%a =>@ %a@]")
           (print_list space (print_vs_arg info)) varl (print_expr info 17) e
     | Ewhile (e1,e2) -> fprintf fmt "@[<hv 2>while (%a) { %a@;<1 -2>@}@]"
                      (print_expr info 18) e1
