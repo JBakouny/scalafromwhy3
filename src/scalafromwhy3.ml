@@ -577,7 +577,7 @@ let rec print_list_pre sep print fmt = function
 	
 	let vartype = typetostring e.e_node in  
 	fprintf fmt "@[<hov 2>%s %a =@ %a@]"
-          (vartype) (print_lident info) (pv_name pv) (print_expr ~opr:false info 18) e 
+          (vartype) (printf_lident info) (pv_name pv) (print_expr ~opr:false info 18) e 
 
     | Lsym (rs, svar, res, args, ef) ->  
         fprintf fmt "@[<hov 2>def %a %a@]"
