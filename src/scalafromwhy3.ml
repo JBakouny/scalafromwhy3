@@ -176,9 +176,20 @@ module Print = struct
   let print_lident = print_qident ~sanitizer:Strings.uncapitalize
   let print_uident = print_qident ~sanitizer:Strings.capitalize
 
+  let rec gen_uppercase s i = 
+	if i < String.length s then
+	(String.make 1 (Char.uppercase_ascii (String.get s i))) ^ (gen_uppercase s (i+1))
+	else ""
+
+(* Removed '%s *)
   let print_tv ~use_quote fmt tv =
-    fprintf fmt (if use_quote then "'%s" else "%s")
+	if use_quote then
+	fprintf fmt "%s" 
+	(gen_uppercase (id_unique aprinter tv.tv_name) 0)
+	else
+	fprintf fmt "%s"
       (id_unique aprinter tv.tv_name)
+	 
 
   let protect_on ?(boxed=false) ?(be=false) b s = 
     if b
@@ -188,7 +199,9 @@ module Print = struct
     else if not boxed then "@[<hv>" ^^ s ^^ "@]"
     else s
 
+
   let star fmt () = fprintf fmt " *@ "
+(* Added ntg *)
   let ntg fmt () = fprintf fmt ""
 
   let rec print_list2 sep sep_m print1 print2 fmt (l1, l2) =
@@ -228,7 +241,7 @@ let rec print_list_pre sep print fmt = function
 
   let rec print_ty ~use_quote ?(paren=false) info fmt = function
     | Tvar tv ->
-        print_tv ~use_quote fmt tv
+	print_tv ~use_quote fmt tv
     | Ttuple [] ->
         fprintf fmt "Unit"
     | Ttuple [t] ->
@@ -238,12 +251,6 @@ let rec print_list_pre sep print fmt = function
         fprintf fmt (protect_on paren "@[(%a)@]") 
 	  (*replaced star by comma, true by false in:*)
           (print_list comma (print_ty ~use_quote ~paren:false info)) tl 
-    (*TODO *)
-    (*| Tarrow (a, b) ->
-        fprintf fmt (protect_on paren "%a => %a")
-          (print_ty ~use_quote ~paren info) a
-          (print_ty ~use_quote ~paren info) b*)
-
     | Tapp (ts, tl) ->
         match query_syntax info.info_syn ts with
         | Some s when complex_syntax s ->
@@ -251,20 +258,56 @@ let rec print_list_pre sep print fmt = function
               (syntax_arguments s (print_ty ~use_quote ~paren:true info)) tl
         | Some s ->
            fprintf fmt (protect_on paren "%a%s")
-             (print_list_suf space (print_ty ~use_quote ~paren:true info)) tl 
+             (print_list_suf space (print_ty ~use_quote ~paren:true info)) tl
              s
         | None   ->
             match tl with
             | [] ->
                 (print_lident info) fmt ts
             | [ty] ->
-                fprintf fmt (protect_on paren "(x :%a@ %a)")
+                fprintf fmt (protect_on paren "%a@ %a")
                   (print_ty ~use_quote ~paren:true info) ty (print_lident info)
                   ts
             | tl ->
                 fprintf fmt (protect_on paren "(%a)@ %a")
                   (print_list comma (print_ty ~use_quote ~paren:false info)) tl
                   (print_lident info) ts
+
+(* Added print_ty2 *)      
+  let rec print_ty2 ~use_quote ?(paren=false) info fmt = function
+    | Tvar tv ->
+	print_tv ~use_quote fmt tv
+    | Ttuple [] ->
+        fprintf fmt "Unit"
+    | Ttuple [t] ->
+        print_ty2  ~use_quote ~paren info fmt t
+    | Ttuple tl ->
+	(*added parenthesis:*)
+        fprintf fmt (protect_on paren "@[(%a)@]") 
+	  (*replaced star by comma, true by false in:*)
+          (print_list comma (print_ty2 ~use_quote ~paren:false info)) tl 
+    | Tapp (ts, tl) ->
+        match query_syntax info.info_syn ts with
+        | Some s when complex_syntax s ->
+            fprintf fmt (protect_on paren "%a")
+              (syntax_arguments s (print_ty2 ~use_quote:true ~paren:true info)) tl
+        | Some s ->
+           fprintf fmt (protect_on paren "%a%s")
+             (print_list_suf space (print_ty2 ~use_quote:true ~paren:true info)) tl 
+             s
+        | None   ->
+		(* Added [] *)
+            match tl with
+            | [] ->
+                (print_lident info) fmt ts
+            | [ty] ->
+                fprintf fmt (protect_on paren "%a@ [%a]")
+                  (print_lident info) ts
+		(print_ty2 ~use_quote:true ~paren:true info) ty
+            | tl ->
+                fprintf fmt (protect_on paren "%a@ [%a]")
+		  (print_lident info) ts
+                  (print_list comma (print_ty2 ~use_quote:true ~paren:false info)) tl
 
   let print_vsty_opt info fmt id ty =
     fprintf fmt "?%s:(%a:@ %a)" id.id_string (print_lident info) id
@@ -310,12 +353,14 @@ let rec print_list_pre sep print fmt = function
     else if is_named ~attrs then print_vs_named info fmt id
     else print_lident info fmt id
 
+(* TODO remove ? *)
   let print_tv_arg = print_tv
-  let print_tv_args ~use_quote fmt = function
+
+(* Removed case [tv] *)
+  let print_tv_args fmt = function
     | []   -> ()
-    | [tv] -> fprintf fmt "%a@ " (print_tv_arg ~use_quote) tv
     | tvl  ->
-        fprintf fmt "(%a)@ " (print_list comma (print_tv_arg ~use_quote)) tvl
+        fprintf fmt "[%a]@ " (print_list comma (print_tv ~use_quote:true)) tvl
 
   let print_vs_arg info fmt vs =
     fprintf fmt "@[%a@]" (print_vsty info) vs
@@ -747,21 +792,38 @@ let rec print_list_pre sep print fmt = function
         (print_list comma print_var) pvl (print_expr info 17) e
 
   let print_type_decl info fst fmt its =
-	(* TODO remove fst from function arg in the future *)
+	(* TODO remove fst from function parameters in the future *)
     let print_constr fmt (id, cs_args) =
       match cs_args with
-	(* changed the fprintf syntaxe *)
-      | [] -> fprintf fmt "@[<hov 4>final case object %a extends %a@]" (print_uident info) id
+	(* changed the fprintf syntax *)
+      (*	case object if we want to add Nothing
+	| [] -> fprintf fmt "@[<hov 4>final case object %a extends %a%s@]" 
+			(print_uident info) id
 			(print_lident info) its.its_name
-	(* changed the fprintf syntaxe *)
-	(* changed the argument of print_list from star to ntg*)
-      | l -> fprintf fmt "@[<hov 4>final case class %a %a extends %a@]" (print_uident info) id
-               (print_list ntg (print_ty ~use_quote:true ~paren:false info)) l
-		(print_lident info) its.its_name in
+			(* Add nothing for every generic type and add covariant to the top level generics *)
+			(if its.its_args = [] then "" else "[Nothing]")
+	(* changed the fprintf syntax *)
+	(* added start_arg, sep_arg, stop_arg *)
+	*)
+      | l ->	let start_arg fmt () = fprintf fmt "(x1: " in
+		let x = ref 1 in
+  		let sep_arg fmt () = let () = (x := !x + 1) in 
+				fprintf fmt ")(x%s: " 
+				(string_of_int !x) in
+ 		let stop_arg fmt () = fprintf fmt ")" in
+		fprintf fmt "@[<hov 4>final case class %a%a%s %a extends %a%a@]" 
+		(print_uident info) id
+		(print_tv_args) its.its_args
+		(* Changed print_list to print_list_delim *)
+		(*(print_list ntg (print_ty2 ~use_quote:false ~paren:false info)) l*)
+		(if l = [] then "()" else "")
+		(print_list_delim ~start:start_arg ~stop:stop_arg ~sep:sep_arg (print_ty2 ~use_quote:true ~paren:false info)) l
+		(print_lident info) its.its_name 
+		(print_tv_args) its.its_args in
 
     let print_field fmt (is_mutable, id, ty) =
       fprintf fmt "%s%a: @[%a@];" (if is_mutable then "mutable " else "")
-        (print_lident info) id (print_ty ~use_quote:true ~paren:false info) ty in
+        (print_lident info) id (print_ty2 ~use_quote:true ~paren:false info) ty in
     let print_def fmt = function
       | None ->
           ()
@@ -772,7 +834,7 @@ let rec print_list_pre sep print fmt = function
             (if its.its_private then "private " else "")
             (print_list newline print_field) fl
       | Some (Dalias ty) ->
-          fprintf fmt " =@ %a" (print_ty ~use_quote:true ~paren:false info) ty
+          fprintf fmt " =@ %a" (print_ty2 ~use_quote:true ~paren:false info) ty
       | Some (Drange _) ->
           fprintf fmt " =@ Z.t"
       | Some (Dfloat _) ->
@@ -781,8 +843,8 @@ let rec print_list_pre sep print fmt = function
     let attrs = its.its_name.id_attrs in
     if not (is_ocaml_remove ~attrs) then
       fprintf fmt "@[<hov 2>@[%s %a%a@]%a@]"
-        ("abstract sealed class") (print_tv_args ~use_quote:true) its.its_args
-        (print_lident info) its.its_name print_def its.its_def
+        ("abstract sealed class") 
+        (print_lident info) its.its_name (print_tv_args) its.its_args print_def its.its_def
 
   let rec is_signature_decl info = function
     | Dtype _ -> true
