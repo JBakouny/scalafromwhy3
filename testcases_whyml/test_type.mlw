@@ -19,4 +19,15 @@ let g() = f Empty
 let a = 5
 let h() = f a 
 
+(*let rec search (i: int) (l: list int) : int =
+	match l with
+	| Nil -> i
+	| Cons x r -> 0
+	end
+*)
+let rec search i l =
+	match l with
+	| Nil -> i
+	| Cons x r -> 0
+	end
 

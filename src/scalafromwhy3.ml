@@ -409,12 +409,17 @@ let rec print_list_pre sep print fmt = function
                   (print_list2 semi equal (print_record_proj info)
                   (print_pat info 6)) (pjl, pl)
 
+(* Added () to the [] case 
+	Changed print_list comma to print_list delim 
+	Removed [p] case *)
   and print_papp info ls fmt = function
-    | []  -> fprintf fmt "%a"      (print_uident info) ls.ls_name
-    | [p] -> fprintf fmt "%a %a"   (print_uident info) ls.ls_name
-               (print_pat info 3) p
-    | pl  -> fprintf fmt "%a (%a)" (print_uident info) ls.ls_name
-               (print_list comma (print_pat info 4)) pl
+    | []  -> fprintf fmt "%a()"      (print_uident info) ls.ls_name
+    | pl  -> 	let start_arg fmt () = fprintf fmt "(" in
+		let sep_arg fmt () = fprintf fmt ")(" in
+		let stop_arg fmt () = fprintf fmt ")" in
+		fprintf fmt "%a%a" (print_uident info) ls.ls_name
+               (print_list_delim ~start:start_arg ~stop:stop_arg ~sep:sep_arg 
+		(print_pat info 4)) pl
 
   (** Expressions *)
 
@@ -549,7 +554,7 @@ let rec print_list_pre sep print fmt = function
   and print_fun_type_args info fmt (args, s, res, e) =
     if Stv.is_empty s then
 	(*added {}*)
-      fprintf fmt "@[%a@]:@ %a@ = {@ @[<hv>(%a)}@]"
+      fprintf fmt "@[%a@]:@ %a@ = {@ @[<hv>%a}@]"
         (print_list_suf space (print_vs_arg info)) args
         (print_ty2 ~use_quote:false info) res
         (print_expr ~opr:false info 18) e
@@ -557,7 +562,7 @@ let rec print_list_pre sep print fmt = function
       let id_args = List.map (fun (id,_,_) -> (id)) args in
       let arrow fmt () = fprintf fmt " => " in 
       let start fmt () = fprintf fmt " " in 
-      fprintf fmt "@[<h>[%a]@] :@[(%a)@ %a@]@] = @ \
+      fprintf fmt "@[<hv 2>[%a]@] : @[%a@ %a@]@] = @ \
                    @[<hv 2>@[%a@]%a@]" 
         print_svar s
         (print_list_suf arrow (print_vsty_fun info)) args
@@ -577,7 +582,7 @@ let rec print_list_pre sep print fmt = function
 	
 	let vartype = typetostring e.e_node in  
 	fprintf fmt "@[<hov 2>%s %a =@ %a@]"
-          (vartype) (printf_lident info) (pv_name pv) (print_expr ~opr:false info 18) e 
+          (vartype) (print_lident info) (pv_name pv) (print_expr ~opr:false info 18) e 
 
     | Lsym (rs, svar, res, args, ef) ->  
         fprintf fmt "@[<hov 2>def %a %a@]"
@@ -650,8 +655,7 @@ let rec print_list_pre sep print fmt = function
         fprintf fmt
           (if prec < 18 && opr
            then "@[<hv>@[<hv 2>begin@ match@ %a@]@ with@]@\n@[<hv>%a@]@\nend"
-           else "@[<hv>@[<hv 2>match@ %a@]@ with@]@\n@[<hv>%a@]")
-	  (*"@[<hv>@[<hv 2>%a match {@]@ @\n@[<hv>%a@]" ?*)
+           else "@[<hv>@[<hv 2>%a match{@]@]@\n@[<hv>%a@]}")
           (print_expr info 18) e
           (print_list newline (print_branch info)) pl
     | Eassign al ->

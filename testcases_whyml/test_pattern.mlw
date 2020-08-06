@@ -1,0 +1,6 @@
+let rec fonction l = 
+	match l with 
+	| [] -> 0
+	| [p] -> 1
+	| x::xs -> (1 + (fonction xs))
+	end
