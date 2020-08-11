@@ -1,4 +1,4 @@
-package fr.lri.why3
+package why3
 
 // Translated from Sect. 2.6 of Why3 Manual
 object AmortizedQueue {

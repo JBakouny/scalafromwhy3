@@ -1,4 +1,4 @@
-package fr.lri.why3
+package why3
 
 // Translated from Sect. 2.2 of Why3 Manual
 object MaxAndSum {

@@ -1,2 +1,0 @@
-let f l = List.map l (fun x -> (x))
-f [1;2;3]
