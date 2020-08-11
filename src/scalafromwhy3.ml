@@ -266,7 +266,7 @@ let rec print_list_pre sep print fmt = function
             | [] ->
                 (print_lident info) fmt ts
             | [ty] ->
-                fprintf fmt (protect_on paren "%a@ %a")
+                fprintf fmt (protect_on paren "%a@ [%a]")
 		  (print_lident info) ts
                   (print_ty ~use_quote ~paren:true info) ty 
       		 
@@ -527,14 +527,16 @@ let rec print_list_pre sep print fmt = function
       | None, tl when isconstructor () ->
          let pjl = get_record info rs in
          begin match pjl, tl with
+(* remove protect_on from fprintf and add parenthesis for scala application*)
          | [], [] ->
-            (print_uident info) fmt rs.rs_name
+            fprintf fmt "%a ()" (print_uident info) rs.rs_name
          | [], [t] ->
-             fprintf fmt (protect_on (prec < 4) "%a %a") (print_uident info) rs.rs_name
+             fprintf fmt "%a (%a)" (print_uident info) rs.rs_name
                (print_expr info 2) t
          | [], tl ->
-             fprintf fmt (protect_on (prec < 4) "%a (%a)") (print_uident info) rs.rs_name
+             fprintf fmt "%a (%a)" (print_uident info) rs.rs_name
                (print_list comma (print_expr info 14)) tl
+(* TODO implement the translation of records *)
          | pjl, tl -> let equal fmt () = fprintf fmt " =@ " in
                       fprintf fmt "@[<hov 2>{ %a }@]"
                         (print_list2 semi equal (print_record_proj info)

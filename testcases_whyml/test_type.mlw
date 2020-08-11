@@ -1,4 +1,4 @@
-type option 'a = None | Some (int) (string)
+type option 'a = None | Some 'a
 type option2 'a = None2 | Some2 int int
 
 type tree 'a = 
@@ -14,7 +14,10 @@ type list 'a = Nil | Cons 'a (list 'a)
 
 type list2 = Nil2 | Cons2 int list2
 
-let f x = x
-let g() = f Empty
+let f x y z = x
+let g() = f Empty (Cons 2 Nil) (Some 3)
 let a = 5
-let h() = f a 
+let h() = f a
+
+let f2 a = Cons 1 a
+
