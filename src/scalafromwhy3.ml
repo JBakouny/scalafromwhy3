@@ -384,8 +384,12 @@ let rec print_list_pre sep print fmt = function
     | Pvar {vs_name=id} ->
         (print_lident info) fmt id
     | Pas (p, {vs_name=id}) ->
-        fprintf fmt (protect_on (prec < 7) "%a as %a") (print_pat info 6) p
+	(* Changed as to @ and permuted the arguments *)
+	(* TODO different print, without () *)
+        fprintf fmt (protect_on (prec < 7) "%a %s %a")
           (print_lident info) id
+	  "@"
+	  (print_pat info 6) p
     | Por (p1, p2) ->
         fprintf fmt (protect_on (prec < 6) "%a | %a")
           (print_pat info 6) p1
@@ -409,17 +413,12 @@ let rec print_list_pre sep print fmt = function
                   (print_list2 semi equal (print_record_proj info)
                   (print_pat info 6)) (pjl, pl)
 
-(* Added () to the [] case 
-	Changed print_list comma to print_list delim 
+(* Added () to the [] case
 	Removed [p] case *)
   and print_papp info ls fmt = function
     | []  -> fprintf fmt "%a()"      (print_uident info) ls.ls_name
-    | pl  -> 	let start_arg fmt () = fprintf fmt "(" in
-		let sep_arg fmt () = fprintf fmt ")(" in
-		let stop_arg fmt () = fprintf fmt ")" in
-		fprintf fmt "%a%a" (print_uident info) ls.ls_name
-               (print_list_delim ~start:start_arg ~stop:stop_arg ~sep:sep_arg 
-		(print_pat info 4)) pl
+    | pl  -> fprintf fmt "%a(%a)" (print_uident info) ls.ls_name
+               (print_list comma (print_pat info 4)) pl
 
   (** Expressions *)
 
@@ -582,7 +581,8 @@ let rec print_list_pre sep print fmt = function
 	
 	let vartype = typetostring e.e_node in  
 	fprintf fmt "@[<hov 2>%s %a =@ %a@]"
-          (vartype) (print_lident info) (pv_name pv) (print_expr ~opr:false info 18) e 
+	  (* Changed opr to true *)
+          (vartype) (print_lident info) (pv_name pv) (print_expr ~opr:true info 18) e 
 
     | Lsym (rs, svar, res, args, ef) ->  
         fprintf fmt "@[<hov 2>def %a %a@]"
@@ -623,17 +623,18 @@ let rec print_list_pre sep print fmt = function
           | _ -> assert false in
         (match query_syntax info.info_literal id with
          | Some s -> syntax_arguments s print_constant fmt [e]
-         (*| None when n = "0" -> fprintf fmt "BigInt(0)"
-         | None when n = "1" -> fprintf fmt "BigInt(1)"*)
-         | None   -> fprintf fmt (protect_on (prec < 4) "BigInt(%s)") n)
+	(* Replaced prec<4 with false *)
+	(* TODO Check how to handle prec *)
+         | None   -> fprintf fmt (protect_on false "BigInt(%s)") n)
     | Econst (Constant.ConstStr s) ->
         Constant.print_string_def fmt s
     | Econst (Constant.ConstReal _) -> assert false (* TODO *)
     | Evar pvs ->
         (print_lident info) fmt (pv_name pvs)
+(* Removed && prec < 18 *)
     | Elet (let_def, e) ->
-        fprintf fmt (protect_on ~boxed (opr && prec < 18) "@[%a ;@]@;%a")
-          (print_let_def info) let_def (print_expr ~boxed:true ~opr info 18) e;
+        fprintf fmt (protect_on ~boxed opr "@[%a ;@]@;%a")
+          (print_let_def info) let_def (print_expr ~boxed:true ~opr:false info 18) e;
         forget_let_defn let_def
     | Eabsurd ->
         fprintf fmt (protect_on (opr && prec < 4) "assert(false)") (*mod*)
@@ -648,13 +649,14 @@ let rec print_list_pre sep print fmt = function
     | Eapp (rs, pvl) ->
         print_apply info prec rs fmt pvl
     | Ematch (e1, [p, e2], []) -> (*?*)
-        fprintf fmt (protect_on (opr && prec < 18) "let %a =@ %a in@ %a")
+        fprintf fmt (protect_on (opr && prec < 18) "val %a =@ %a ;@ %a")
           (print_pat info 6) p (print_expr ~opr:false info 18) e1
           (print_expr ~opr info 18) e2
+(*Replaced begin and end with {} and changed the match syntax*)
     | Ematch (e, pl, []) ->
         fprintf fmt
           (if prec < 18 && opr
-           then "@[<hv>@[<hv 2>begin@ match@ %a@]@ with@]@\n@[<hv>%a@]@\nend"
+           then "@[<hv>@[<hv 2>{@ %a match@ @]@]@\n@[<hv>%a@]@\n}"
            else "@[<hv>@[<hv 2>%a match{@]@]@\n@[<hv>%a@]}")
           (print_expr info 18) e
           (print_list newline (print_branch info)) pl
@@ -755,7 +757,7 @@ let rec print_list_pre sep print fmt = function
     | Eignore e ->
         fprintf fmt (protect_on (prec < 4)"ignore %a")
           (print_expr info 3) e
-(*to be updated*)
+
   and print_branch info fmt (p, e) =
     fprintf fmt "@[<hv 2>case %a =>@ @[%a@]@]" (*replaced | by case and -> by =>*)
       (print_pat info 5) p (print_expr info 17) e;
@@ -816,7 +818,7 @@ let rec print_list_pre sep print fmt = function
       | l ->	let start_arg fmt () = fprintf fmt "(x1: " in
 		let x = ref 1 in
   		let sep_arg fmt () = let () = (x := !x + 1) in 
-				fprintf fmt ")(x%s: " 
+				fprintf fmt ",x%s: " 
 				(string_of_int !x) in
  		let stop_arg fmt () = fprintf fmt ")" in
 		fprintf fmt "@[<hov 4>final case class %a%a%s %a extends %a%a@]" 

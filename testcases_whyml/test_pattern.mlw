@@ -1,6 +1,46 @@
-let rec fonction l = 
-	match l with 
-	| [] -> 0
-	| [p] -> 1
-	| x::xs -> (1 + (fonction xs))
+type list 'a = Nil | Cons 'a (list 'a)
+
+type list2 = Nil2 | Cons2 int list2
+
+(*
+let rec search (i: int) (l: list int) : int =
+	match l with
+	| Nil -> i
+	| Cons x r -> 0
 	end
+*)
+
+use int.Int
+let rec search i l =
+	match l with
+	| Nil -> i
+	| Cons x r -> if x = 0 then i else search (i+1) r
+	end
+
+let rec search2 i l =
+	match l with
+	| Nil2 -> i
+	| Cons2 x r -> if x = 0 then i else search2 (i+1) r
+	end
+
+let rec test_pat xs =
+match xs with
+| Nil -> 0
+| Cons x (Cons _ Nil | Nil) -> x
+| Cons x ((Cons y ys) as x2) -> x + (test_pat x2)
+end
+
+let exp = let x = 1 in let y = 2 in x+y
+
+let x = 4
+let y = x + 1
+let f = fun x -> x + 1
+
+let tm t = let z = 5 in 
+match t with
+| (x,y) -> x+y+z
+end
+
+
+
+
