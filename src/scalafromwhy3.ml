@@ -723,7 +723,7 @@ let rec print_list_pre sep print fmt = function
     | Efun (varl, e) ->
         fprintf fmt (protect_on (opr && prec < 18) "@[<hv 2>%a =>@ %a@]")
           (print_list space (print_vs_arg info)) varl (print_expr info 17) e
-    | Ewhile (e1,e2) -> fprintf fmt "@[<hv 2>while (%a) { %a@;<1 -2>@}@]"
+    | Ewhile (e1,e2) -> fprintf fmt "@[<hv 2>while (%a) { %a@;<1 -2>@ }@]"
                      (print_expr info 18) e1
                      (print_expr ~opr:false info 18) e2
     | Eraise (xs, e_opt) ->
