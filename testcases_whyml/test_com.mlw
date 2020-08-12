@@ -1,13 +1,8 @@
-let f3 = fun (x:int) -> fun (y:int) -> (x,y)
-
-let f4 a b = a
-
 use int.Int
 use ref.Ref
 use bool.Bool
 
-
-
+(* While *)
 let count_to (lim: int) : int
 = let i = ref 0 in
 	while !i < lim do
@@ -15,6 +10,7 @@ let count_to (lim: int) : int
 	done;
 	!i;
 
+(* Algebraic Data Type *)
 type option 'a = None | Some 'a
 type option2 'a 'b = None2 | Some2 'a 'b
 
@@ -22,7 +18,6 @@ type tree 'a =
 	| Empty
 	| NonEmpty 'a (tree 'a) (tree 'a)
 
-(* Without generics [Nothing] *)
 type tree2 = 
 	| Empty2
 	| NonEmpty2 int tree2 tree2
@@ -31,25 +26,7 @@ type list 'a = Nil | Cons 'a (list 'a)
 
 type list2 = Nil2 | Cons2 int list2
 
-let f x y z = x
-let g x = f Empty (Cons 2 Nil) (Some x)
-let a = 5
-let h a = g a 
-let f5 a = Cons 1 a
-
-type list 'a = Nil | Cons 'a (list 'a)
-
-type list2 = Nil2 | Cons2 int list2
-
-(*
-let rec search (i: int) (l: list int) : int =
-	match l with
-	| Nil -> i
-	| Cons x r -> 0
-	end
-*)
-
-use int.Int
+(* Pattern Matching *)
 let rec search i l =
 	match l with
 	| Nil -> i
@@ -69,20 +46,28 @@ match xs with
 | Cons x ((Cons y ys) as x2) -> x + (test_pat x2)
 end
 
-let exp = let x = 1 in let y = 2 in x+y
-
-let x = 4
-let y = x + 1
-let f = fun x -> x + 1
-
 let tm t = let z = 5 in 
 match t with
 | (x,y) -> x+y+z
 end
 
+(* Functions *)
+let f1 = fun (x:int) -> fun (y:int) -> (x,y)
 
-let f2 a b = Some2 a b
+let f2 a = a
 
+let exp = let x = 1 in let y = 2 in x+y
+
+let x = 4
+let y = x + 1
+let f3 = fun x -> x + 1
+
+let f4 x y z = x
+let g x = f4 Empty (Cons 2 Nil) (Some x)
+let a = 5
+let h a = g a 
+let f5 a = Cons 1 a
+let f6 a b = Some2 a b
 let j x y = (x,y)
 
 
