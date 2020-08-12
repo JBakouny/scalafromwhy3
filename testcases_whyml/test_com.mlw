@@ -1,0 +1,89 @@
+let f3 = fun (x:int) -> fun (y:int) -> (x,y)
+
+let f4 a b = a
+
+use int.Int
+use ref.Ref
+use bool.Bool
+
+
+
+let count_to (lim: int) : int
+= let i = ref 0 in
+	while !i < lim do
+		i := !i+1;
+	done;
+	!i;
+
+type option 'a = None | Some 'a
+type option2 'a 'b = None2 | Some2 'a 'b
+
+type tree 'a = 
+	| Empty
+	| NonEmpty 'a (tree 'a) (tree 'a)
+
+(* Without generics [Nothing] *)
+type tree2 = 
+	| Empty2
+	| NonEmpty2 int tree2 tree2
+
+type list 'a = Nil | Cons 'a (list 'a)
+
+type list2 = Nil2 | Cons2 int list2
+
+let f x y z = x
+let g x = f Empty (Cons 2 Nil) (Some x)
+let a = 5
+let h a = g a 
+let f5 a = Cons 1 a
+
+type list 'a = Nil | Cons 'a (list 'a)
+
+type list2 = Nil2 | Cons2 int list2
+
+(*
+let rec search (i: int) (l: list int) : int =
+	match l with
+	| Nil -> i
+	| Cons x r -> 0
+	end
+*)
+
+use int.Int
+let rec search i l =
+	match l with
+	| Nil -> i
+	| Cons x r -> if x = 0 then i else search (i+1) r
+	end
+
+let rec search2 i l =
+	match l with
+	| Nil2 -> i
+	| Cons2 x r -> if x = 0 then i else search2 (i+1) r
+	end
+
+let rec test_pat xs =
+match xs with
+| Nil -> 0
+| Cons x (Cons _ Nil | Nil) -> x
+| Cons x ((Cons y ys) as x2) -> x + (test_pat x2)
+end
+
+let exp = let x = 1 in let y = 2 in x+y
+
+let x = 4
+let y = x + 1
+let f = fun x -> x + 1
+
+let tm t = let z = 5 in 
+match t with
+| (x,y) -> x+y+z
+end
+
+
+let f2 a b = Some2 a b
+
+let j x y = (x,y)
+
+
+
