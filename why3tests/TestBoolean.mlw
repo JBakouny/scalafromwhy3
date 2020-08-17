@@ -1,0 +1,6 @@
+
+let g a b c = (a && ( b || c))
+
+let main () =
+   let actual = ( g true false true) in
+   if actual then 1 else 0

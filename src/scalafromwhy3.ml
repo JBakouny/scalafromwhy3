@@ -472,7 +472,7 @@ let rec print_list_pre sep print fmt = function
         else if is_named ~attrs:(pv_name pv).id_attrs then
           fprintf fmt "~%s:%a" (pv_name pv).id_string
             (print_expr info 1) expr
-        else fprintf fmt "(%a)" (print_expr info 3) expr;
+        else fprintf fmt "(%a())" (print_expr info 3) expr;
         if exprl <> [] then fprintf fmt "@ ";
         print_apply_args info fmt (exprl, pvl)
     | expr :: exprl, [] ->

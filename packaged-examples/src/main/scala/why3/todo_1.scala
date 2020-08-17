@@ -1,5 +1,5 @@
-package why3
-object Main{
+packaged why3
+object main{
 def f [xi, xi1] : xi => xi1 =>  xi = 
  x => y => x
 

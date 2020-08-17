@@ -1,5 +1,5 @@
-package why3
-object Main{
+packaged why3
+object main{
 def f (x: BigInt) : infix_mngt [BigInt, (BigInt, BigInt)] = {
   (y: BigInt) => (x, y)}
 

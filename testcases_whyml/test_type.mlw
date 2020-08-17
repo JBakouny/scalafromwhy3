@@ -18,5 +18,8 @@ let f x y z = x
 let g x = f Empty (Cons 2 Nil) (Some x)
 let a = 5
 let h a = g a 
+let h() = f a
+
+let f2 a = Cons 1 a
 
 let f2 a b = Some2 a b

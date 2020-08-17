@@ -1,5 +1,5 @@
-package why3
-object Main{
+packaged why3
+object main{
 abstract sealed class list[A]
 final case class Nil[A]()  extends list[A]
 final case class Cons[A] (x1: A,x2: list [A]) extends list[A]

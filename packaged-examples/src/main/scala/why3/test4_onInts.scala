@@ -1,5 +1,5 @@
-package why3
-object Main{
+packaged why3
+object main{
 def f (x: BigInt) (y: BigInt) : BigInt = { (x + y)}
 
 def g (x: BigInt) (y: BigInt) : BigInt = { (x - y)}

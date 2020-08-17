@@ -1,5 +1,5 @@
-package why3
-object Main{
+packaged why3
+object main{
 def intid [xi] : xi =>  xi = 
  x => x
 
