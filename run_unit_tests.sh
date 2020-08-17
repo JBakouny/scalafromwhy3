@@ -16,4 +16,4 @@ done
 
 
 
-sbt compile test
+cd package-examples/ && sbt compile test

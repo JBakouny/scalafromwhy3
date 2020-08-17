@@ -1,5 +1,5 @@
-packaged why3
-object main{
+package why3
+object test8_maxsum{
 def max_sum (a: Array[(BigInt)]) (n: BigInt) : (BigInt, BigInt) = {
   var sum = BigInt(0) ;
   var max = BigInt(0) ;

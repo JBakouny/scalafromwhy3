@@ -1,7 +1,12 @@
-packaged why3
-object main{
+package why3
+object test_com{
 def count_to (lim: BigInt) : BigInt = {
-  var i = BigInt(0) ; while ((i < lim)) { i = (i + BigInt(1)) ; i}
+  var i = BigInt(0);
+  while ((i < lim)) {
+    i = (i + BigInt(1)); i
+  }
+  i
+}
 
 abstract sealed class option[A]
 final case class None[A]()  extends option[A]
@@ -48,7 +53,7 @@ def test_pat (xs: list [(BigInt)]) : BigInt = {
 def tm (t: (BigInt, BigInt)) : BigInt = {
   val z = BigInt(5) ; val (x, y) = t ; ((x + y) + z)}
 
-def f1 (x1: BigInt) : infix_mngt [BigInt, (BigInt, BigInt)] = {
+def f1 (x1: BigInt) : BigInt => (BigInt, BigInt) = {
   (y1: BigInt) => (x1, y1)}
 
 def f2 [xi] : xi =>  xi = 
@@ -65,13 +70,13 @@ def f3 (x4: BigInt) : BigInt = { (x4 + BigInt(1))}
 def f4 [xi1, xi2, xi3] : xi1 => xi2 => xi3 =>  xi1 = 
  x4 => y3 => z => x4
 
-def g [xi4, xi5] : xi4 =>  (tree [xi5]) = 
- x4 => f4 (Empty ()) (Cons (BigInt(2), Nil ())) (Some (x4))
+//def g [xi4, xi5] : xi4 =>  (tree [xi5]) =
+// x4 => f4 (Empty ()) (Cons (BigInt(2), Nil ())) (Some (x4))
 
 val a = BigInt(5)
 
-def h [xi6, xi7] : xi6 =>  (tree [xi7]) = 
- a1 => g (a1)
+//def h [xi6, xi7] : xi6 =>  (tree [xi7]) =
+// a1 => g (a1)
 
 def f5 (a1: list [(BigInt)]) : list [(BigInt)] = { Cons (BigInt(1), a1)}
 

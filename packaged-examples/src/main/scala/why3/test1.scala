@@ -1,6 +1,6 @@
-packaged why3
-object main{
-def f (x: BigInt) : infix_mngt [BigInt, (BigInt, BigInt)] = {
+package why3
+object test1{
+def f (x: BigInt) : BigInt => (BigInt, BigInt) = {
   (y: BigInt) => (x, y)}
 
 def f2 [xi, xi1] : xi => xi1 =>  xi = 

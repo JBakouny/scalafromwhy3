@@ -1,3 +1,3 @@
-packaged why3
-object main{
+package why3
+object test_type{
 }
