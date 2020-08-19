@@ -472,7 +472,7 @@ let rec print_list_pre sep print fmt = function
         else if is_named ~attrs:(pv_name pv).id_attrs then
           fprintf fmt "~%s:%a" (pv_name pv).id_string
             (print_expr info 1) expr
-        else fprintf fmt "(%a())" (print_expr info 3) expr;
+        else fprintf fmt "(%a)" (print_expr info 3) expr;
         if exprl <> [] then fprintf fmt "@ ";
         print_apply_args info fmt (exprl, pvl)
     | expr :: exprl, [] ->
@@ -650,7 +650,7 @@ let rec print_list_pre sep print fmt = function
         print_expr ~boxed ~opr ~be info prec fmt e
     | Eapp (rs, pvl) ->
         print_apply info prec rs fmt pvl
-    | Ematch (e1, [p, e2], []) -> (*?*)
+    | Ematch (e1, [p, e2], []) ->
         fprintf fmt (protect_on (opr && prec < 18) "val %a =@ %a ;@ %a")
           (print_pat info 6) p (print_expr ~opr:false info 18) e1
           (print_expr ~opr info 18) e2
@@ -852,11 +852,29 @@ let rec print_list_pre sep print fmt = function
       | Some (Dfloat _) ->
           assert false (*TODO*)
     in
+    (* TODO correct the printing syntax for each type, Ddata csl is correct *)
+    (* Added the function *)
+    let print_superior_class fmt = function
+      | None ->
+          fprintf fmt "none"
+      | Some (Ddata csl) ->
+          fprintf fmt "abstract sealed class"
+      | Some (Drecord fl) ->
+          fprintf fmt "record" 
+      | Some (Dalias ty) ->
+          fprintf fmt "dalias"
+      | Some (Drange _) ->
+          fprintf fmt "drange"
+      | Some (Dfloat _) ->
+          fprintf fmt "dfloat" 
+    in
     let attrs = its.its_name.id_attrs in
     if not (is_ocaml_remove ~attrs) then
-      fprintf fmt "%s %a%a%a"
-        ("abstract sealed class") 
-        (print_lident info) its.its_name (print_tv_args) its.its_args print_def its.its_def
+      fprintf fmt "%a %a%a%a"
+        print_superior_class its.its_def
+        (print_lident info) its.its_name 
+	(print_tv_args) its.its_args 
+	print_def its.its_def
 
   let rec is_signature_decl info = function
     | Dtype _ -> true
