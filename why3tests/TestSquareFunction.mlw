@@ -2,7 +2,7 @@ use int.Int
 
 let square x = x * x
 
-let main (green) =
+let main green =
    let expected = 25 in
    let actual = (square 5) in
    if actual = expected 

@@ -5,6 +5,9 @@ val green = BigInt(1)
 test("TestAbsFunction") {
 assert(TestAbsFunction.main(green) == green)
 }
+test("TestADT") {
+assert(TestADT.main(green) == green)
+}
 test("TestBoolean") {
 assert(TestBoolean.main(green) == green)
 }

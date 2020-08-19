@@ -1,10 +1,9 @@
 use int.Int
 
-let f a = a 
+let f a = a + 4 
 
 let main green =
-   let expected = 3 in
+   let expected = 7 in
    let actual = (f 3) in
    if actual = expected 
    then green else 0
-
