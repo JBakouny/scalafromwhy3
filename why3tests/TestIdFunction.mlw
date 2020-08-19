@@ -2,9 +2,9 @@ use int.Int
 
 let f a = a 
 
-let main () =
+let main (green) =
    let expected = 3 in
    let actual = (f 3) in
    if actual = expected 
-   then 1 else 0
+   then green else 0
 

@@ -6,6 +6,6 @@ def f [xi] : xi =>  xi =
 def main (green: BigInt) : BigInt = {
   val expected = BigInt(3) ;
   val actual = f (BigInt(3)) ;
-  if (actual == expected)  green else BigInt(0)}
+  if ((actual == expected))  green else BigInt(0)}
 
 }

@@ -1,10 +1,10 @@
 use int.Int
 
 let abs x =
-    if x < 0 then x else x
+    if x < 0 then -x else x
 
-let main () =
+let main (green) =
    let expected = 8 in
    let actual = (abs (-8)) in
    if actual = expected 
-   then 1 else 0
+   then green else 0

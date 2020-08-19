@@ -15,7 +15,7 @@ type list 'a = Nil | Cons 'a (list 'a)
 type list2 = Nil2 | Cons2 int list2
 
 let f x y z = x
-let g x = f Empty (Cons 2 Nil) (Some x)
+(* let g x = f Empty (Cons 2 Nil) (Some x) *)
 let a = 5
 let h a = g a 
 (*

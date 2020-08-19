@@ -700,7 +700,7 @@ let rec print_list_pre sep print fmt = function
           (print_expr info 11) e1 (print_expr info 12) e2
     | Eif (e1, e2, e3) ->
         fprintf fmt (protect_on (opr && prec < 16) 
-                       "@[<hv>@[<hv>if %a@]\
+                       "@[<hv>@[<hv>if (%a)@]\
                         @;<1 0>@[<hv 2>@;%a@]\
                         @;<1 0>@[<hv 2>else@;%a@]@]")
           (print_expr ~opr:false info 15) e1

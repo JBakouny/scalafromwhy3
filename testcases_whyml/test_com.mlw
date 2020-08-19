@@ -63,7 +63,6 @@ let y = x + 1
 let f3 = fun x -> x + 1
 
 let f4 x y z = x
-let g x = f4 Empty (Cons 2 Nil) (Some x)
 let a = 5
 let h a = g a 
 let f5 a = Cons 1 a

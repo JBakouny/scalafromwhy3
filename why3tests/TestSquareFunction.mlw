@@ -2,8 +2,8 @@ use int.Int
 
 let square x = x * x
 
-let main () =
+let main (green) =
    let expected = 25 in
    let actual = (square 5) in
    if actual = expected 
-   then 1 else 0
+   then green else 0

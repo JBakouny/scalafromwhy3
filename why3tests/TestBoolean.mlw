@@ -1,6 +1,6 @@
 
 let g a b c = (a && ( b || c))
 
-let main () =
+let main (green) =
    let actual = ( g true false true) in
-   if actual then 1 else 0
+   if (actual) then green else 0

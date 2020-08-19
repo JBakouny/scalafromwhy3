@@ -11,14 +11,16 @@ final case class Cons2 (x1: BigInt,x2: list2) extends list2
 def search (i: BigInt) (l: list [(BigInt)]) : BigInt = {
   l match{
   case Nil() => i
-  case Cons(x, r) => if (x == BigInt(0))  i else search ((i + BigInt(1))) (r)}}
+  case Cons(x,
+    r) =>
+    if ((x == BigInt(0)))  i else search ((i + BigInt(1))) (r)}}
 
 def search2 (i: BigInt) (l: list2) : BigInt = {
   l match{
   case Nil2() => i
   case Cons2(x,
     r) =>
-    if (x == BigInt(0))  i else search2 ((i + BigInt(1))) (r)}}
+    if ((x == BigInt(0)))  i else search2 ((i + BigInt(1))) (r)}}
 
 def test_pat (xs: list [(BigInt)]) : BigInt = {
   xs match{

@@ -3,8 +3,8 @@ use int.Int
 let rec factorial x =
     if x <= 1 then 1 else x * factorial (x - 1)
 
-let main () =
+let main (green) =
    let expected = 120 in
    let actual = (factorial 5) in
    if actual = expected 
-   then 1 else 0
+   then green else 0
