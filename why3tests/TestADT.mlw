@@ -1,9 +1,30 @@
 use int.Int
 
-let f a = a + 4 
+type option 'a = None | Some 'a
+type option2 'a 'b = None2 | Some2 'a 'b
+
+type tree 'a = 
+	| Empty
+	| NonEmpty 'a (tree 'a) (tree 'a)
+
+(* Without generics [Nothing] *)
+type tree2 = 
+	| Empty2
+	| NonEmpty2 int tree2 tree2
+
+type list 'a = Nil | Cons 'a (list 'a)
+
+type list2 = Nil2 | Cons2 int list2
+
+let head t dflt =
+   match t with
+   | Empty -> dflt
+   | NonEmpty a l r -> a
+   end
 
 let main green =
-   let expected = 7 in
-   let actual = (f 3) in
+   let expected = 5 in
+   let actual = (head (NonEmpty 5 Empty Empty) 0) in
    if actual = expected 
    then green else 0
+

@@ -23,4 +23,7 @@ assert(TestMultiple.main(green) == green)
 test("TestSquareFunction") {
 assert(TestSquareFunction.main(green) == green)
 }
+test("TestWhile") {
+assert(TestWhile.main(green) == green)
+}
 }

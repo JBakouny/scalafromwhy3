@@ -1,4 +1,6 @@
 #Ce script marche bien
+make
+rm packaged-examples/src/main/scala/why3tests/*.scala
 unit_test_dest="packaged-examples/src/test/scala/why3tests/Why3UnitTests.scala"
 echo "package why3tests" > $unit_test_dest
 echo "import org.scalatest.funsuite.AnyFunSuite" >> $unit_test_dest
