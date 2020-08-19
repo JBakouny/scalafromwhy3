@@ -862,7 +862,7 @@ let rec print_list_pre sep print fmt = function
       | Some (Drecord fl) ->
           fprintf fmt "record" 
       | Some (Dalias ty) ->
-          fprintf fmt "dalias"
+          fprintf fmt "type"
       | Some (Drange _) ->
           fprintf fmt "drange"
       | Some (Dfloat _) ->
