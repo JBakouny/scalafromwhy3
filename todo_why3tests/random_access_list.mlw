@@ -124,15 +124,15 @@ module RandomAccessList
                   end
     | Zero l1  ->
         let (x0, x1) = lookup (div i 2) l1 in
-        let l1' =
+        let l11 =
           update (div i 2) (if mod i 2 = 0 then (y,x1) else (x0,y)) l1 in
         assert { forall j. 0 <= j < length (elements l) -> j <> i ->
                  match nth (div j 2) (elements l1) with
                  | None -> false
                  | Some (x0,_) -> Some x0 = nth (2 * (div j 2)) (elements l)
                  end
-                 && nth j (elements l) = nth j (elements (Zero l1')) };
-        Zero l1'
+                 && nth j (elements l) = nth j (elements (Zero l11)) };
+        Zero l11
     end
 
 end

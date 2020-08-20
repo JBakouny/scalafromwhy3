@@ -479,7 +479,8 @@ let rec print_list_pre sep print fmt = function
           fprintf fmt "~%s:%a" (pv_name pv).id_string
             (print_expr info 1) expr
         else fprintf fmt "(%a)" (print_expr info 3) expr;
-        if exprl <> [] then fprintf fmt "@ ";
+(* Remove "@" to keep function call arguments on the same line *)
+        if exprl <> [] then fprintf fmt "";
         print_apply_args info fmt (exprl, pvl)
     | expr :: exprl, [] ->
         fprintf fmt "%a" (print_expr info 3) expr;
@@ -645,7 +646,7 @@ let rec print_list_pre sep print fmt = function
           (print_let_def info) let_def (print_expr ~boxed:true ~opr:false info 18) e;
         forget_let_defn let_def
     | Eabsurd ->
-        fprintf fmt (protect_on (opr && prec < 4) "assert(false)") (*mod*)
+        fprintf fmt (protect_on (opr && prec < 4) "throw new java.lang.AssertionError") (*mod*)
     | Eapp (rs, []) when rs_equal rs rs_true ->
         fprintf fmt "true"
     | Eapp (rs, []) when rs_equal rs rs_false ->
@@ -664,7 +665,7 @@ let rec print_list_pre sep print fmt = function
     | Ematch (e, pl, []) ->
         fprintf fmt
           (if prec < 18 && opr
-           then "@[<hv>@[<hv 2>{@ %a match@ @]@]@\n@[<hv>%a@]@\n}"
+           then "@[<hv>@[<hv 2>{@ %a match{@ @]@]@\n@[<hv>%a@]@ }\n}"
            else "@[<hv>@[<hv 2>%a match{@]@]@\n@[<hv>%a@]}")
           (print_expr info 18) e
           (print_list newline (print_branch info)) pl
