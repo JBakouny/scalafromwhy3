@@ -31,7 +31,7 @@ def head [xi] : (tree [xi]) => xi =>  xi =
 
 def main (green: BigInt) : BigInt = {
   val expected = BigInt(5) ;
-  val actual = head (NonEmpty (BigInt(5), Empty (), Empty ())) (BigInt(0)) ;
+  val actual = head (NonEmpty (BigInt(5), Empty (), Empty ()))(BigInt(0)) ;
   if ((actual == expected))  green else BigInt(0)}
 
 }

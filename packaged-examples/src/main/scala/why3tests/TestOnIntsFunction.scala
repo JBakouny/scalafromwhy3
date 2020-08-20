@@ -12,7 +12,7 @@ def lessthan (x: BigInt) (y: BigInt) : Boolean = { (x < y)}
 
 def main (green: BigInt) : BigInt = {
   val expected = BigInt(0) ;
-  val actual = g (BigInt(2)) (BigInt(2)) ;
+  val actual = g (BigInt(2))(BigInt(2)) ;
   if ((actual == expected))  green else BigInt(0)}
 
 }

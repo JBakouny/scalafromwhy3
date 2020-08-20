@@ -7,7 +7,7 @@ def f2 [xi, xi1] : xi => xi1 =>  xi =
 
 def main (green: BigInt) : BigInt = {
   val expected = BigInt(6) ;
-  val actual = f2 (BigInt(6)) (BigInt(7)) ;
+  val actual = f2 (BigInt(6))(BigInt(7)) ;
   if ((actual == expected))  green else BigInt(0)}
 
 }

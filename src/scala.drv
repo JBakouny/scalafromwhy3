@@ -251,7 +251,7 @@ module array.Array
 end
 
 module mach.array.Array32
-  syntax type      array         "(Array[%1])"
+  syntax type      array         "Array[%1]"
   syntax val       length        "%1.length"
   (*
   syntax exception OutOfBounds   "Invalid_argument \"index out of bounds\""
@@ -320,7 +320,7 @@ module mach.int.Int
 end
 *)
 module mach.int.Int32
-  syntax type     int32     "int"
+  syntax type     int32     "Int"
 (*
   syntax literal   int32    "%1"
 
@@ -343,7 +343,7 @@ module mach.int.Int32
 end
 
 module mach.int.Int63
-  syntax type     int63     "Int"
+  syntax type     int63     "Long"
 (*
   syntax literal   int63    "%1"
 
@@ -355,8 +355,8 @@ module mach.int.Int63
   syntax val min_int   "min_int"
   syntax val max_int   "max_int"
 *)
-  syntax val zero      "0"
-  syntax val one       "1"
+  syntax val zero      "0.toLong"
+  syntax val one       "1.toLong"
   syntax val      ( + )     "%1 + %2"   prec 8 8 7
   syntax val      ( - )     "%1 - %2"   prec 8 8 7
   syntax val      (-_)      "- %1"      prec 5 4
@@ -495,7 +495,7 @@ end
 *)
 
 module mach.array.ArrayInt63
-  syntax type array63 "Array [BigInt]"
+  syntax type array63 "Array [Long]"
 (*
   syntax val  make   "Array.make"
 *)

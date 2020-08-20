@@ -479,8 +479,6 @@ let rec print_list_pre sep print fmt = function
           fprintf fmt "~%s:%a" (pv_name pv).id_string
             (print_expr info 1) expr
         else fprintf fmt "(%a)" (print_expr info 3) expr;
-(* Remove "@" to keep function call arguments on the same line *)
-        if exprl <> [] then fprintf fmt "";
         print_apply_args info fmt (exprl, pvl)
     | expr :: exprl, [] ->
         fprintf fmt "%a" (print_expr info 3) expr;
