@@ -1,0 +1,11 @@
+use int.Int
+use ref.Ref
+use bool.Bool
+
+let rec fact x = if x <= 1 then 1 else x * fact (x - 1)
+
+let main green =
+   let expected = 6 in
+   let actual = (fact 3) in
+   if actual = expected 
+   then green else 0

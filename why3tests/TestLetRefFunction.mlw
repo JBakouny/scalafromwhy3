@@ -1,0 +1,12 @@
+use int.Int
+use ref.Ref
+use bool.Bool
+
+let main green =
+   let x : int = 1 in
+   let y = ref 0 in
+   let expected = x in
+   let actual = (!y+1) in
+   if actual = expected 
+   then green else 0
+

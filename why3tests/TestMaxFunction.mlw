@@ -1,0 +1,12 @@
+use int.Int
+use ref.Ref
+use bool.Bool
+
+let max a b =
+    if a > b then a else b
+
+let main green =
+   let expected = 5 in
+   let actual = (max 1 5) in
+   if actual = expected 
+   then green else 0

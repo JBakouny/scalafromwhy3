@@ -1,0 +1,11 @@
+use int.Int
+use ref.Ref
+use bool.Bool
+
+let sum (a : int) (b : int) c = a+b+c
+
+let main green =
+   let expected = 6 in
+   let actual = (sum 2 2 2) in
+   if actual = expected 
+   then green else 0

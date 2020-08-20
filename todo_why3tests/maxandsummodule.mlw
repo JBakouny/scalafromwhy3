@@ -1,0 +1,27 @@
+use int.Int
+use ref.Ref
+use array.Array
+
+module Spec
+  use int.Int
+  use export array.Array
+
+let max_sum (a: array int) (n: int) : (sum: int, max: int)
+= let sum = ref 0 in
+  let max = ref 0 in
+  for i = 0 to n - 1 do
+	invariant { !sum <= i * !max }
+	if !max < a[i] then max := a[i];
+	sum := !sum + a[i]
+  done;
+  (!sum, !max)
+
+
+let main green =
+   let n = 10 in
+   let a = [| 9; 5; 0; 2; 7; 3; 2; 1; 10; 6 |] in
+   let expected = (45,10) in
+   let actual = (max_sum a n) in
+   if actual = expected then green else 0
+
+

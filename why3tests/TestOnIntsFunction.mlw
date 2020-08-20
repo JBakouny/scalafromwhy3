@@ -1,0 +1,37 @@
+use int.Int
+use ref.Ref
+use bool.Bool
+
+let f (x:int) (y:int) : int = x+y
+let g (x:int) (y:int) : int = x-y
+let h (x:int) : int = -x
+let i (x:int) (y:int) : int = x*y
+let lessthan (x:int) (y:int) : bool = (x<y)
+
+(* let main green =
+   let expected = 4 in
+   let actual = (f 2 2) in
+   if actual = expected 
+   then green else 0 *)
+
+let main green =
+   let expected = 0 in
+   let actual = (g 2 2) in
+   if actual = expected 
+   then green else 0
+
+(* let main green =
+   let expected = -2 in
+   let actual = (h 2) in
+   if actual = expected 
+   then green else 0 *)
+
+(* let main green =
+   let expected = 4 in
+   let actual = (f 2 2) in
+   if actual = expected 
+   then green else 0 *)
+
+(* let main green =
+   let actual = (lessthan 2 4) in
+   if actual then green else 0 *)

@@ -1,0 +1,13 @@
+use int.Int
+use ref.Ref
+use bool.Bool
+
+let f x y = x
+let f1 x y z = z 
+
+let main green =
+   let expected = 6 in
+   let actual = (f1 8 7 6) in
+   if actual = expected 
+   then green else 0
+

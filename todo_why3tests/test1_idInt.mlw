@@ -1,3 +1,0 @@
-use int.Int
-let intid (x:int) : int = x
-

@@ -1,4 +1,0 @@
-let f = fun (x:int) -> fun (y:int) -> (x,y)
-(*let f (x:int) (y:int) (z:int) : (int,int,int) = (x,y,z)
-let f x y =(x,y)*)
-let f2 a b = a

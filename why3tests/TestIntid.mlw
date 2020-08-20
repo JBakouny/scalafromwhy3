@@ -1,0 +1,11 @@
+use int.Int
+use ref.Ref
+use bool.Bool
+
+let intid (x:int) : int = x
+
+let main green =
+   let expected = 6 in
+   let actual = (intid 6) in
+   if actual = expected 
+   then green else 0
