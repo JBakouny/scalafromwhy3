@@ -327,11 +327,17 @@ let rec print_list_pre sep print fmt = function
   let print_vs_named info fmt id =
     fprintf fmt "~%s:%a" id.id_string (print_lident info) id
 
+  let isEmpty ty = match ty with 
+    | Ttuple[] -> true
+    | _ -> false
+
   let print_vsty info fmt (id, ty, _) =
     let attrs = id.id_attrs in
     if is_optional ~attrs then print_vsty_opt info fmt id ty
     else if is_named ~attrs then print_vsty_named info fmt id ty
-    else fprintf fmt "(%a:@ %a)" (print_lident info) id
+(* Add the if condition *)
+    else if (id.id_string="_" && isEmpty ty)then fprintf fmt "" else
+	fprintf fmt "(%a:@ %a)" (print_lident info) id
       (print_ty ~use_quote:false ~paren:false info) ty
 
   let print_vsty_opt_fun info fmt id = function

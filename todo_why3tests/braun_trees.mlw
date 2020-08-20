@@ -22,16 +22,12 @@ module BraunHeaps
   use export bintree.Size
   use export bintree.Occ
 
-  type elt
-
-  val predicate le elt elt
-
-  clone relations.TotalPreOrder with type t = elt, predicate rel = le, axiom .
+  type elt = int
 
   (* [e] is no greater than the root of [t], if any *)
   let predicate le_root (e: elt) (t: tree elt) = match t with
     | Empty -> true
-    | Node _ x _ -> le e x
+    | Node _ x _ -> e <= x
   end
 
   predicate heap (t: tree elt) = match t with
@@ -43,7 +39,7 @@ module BraunHeaps
   axiom minimum_def: forall l x r. minimum (Node l x r) = x
 
   predicate is_minimum (x: elt) (t: tree elt) =
-    mem x t && forall e. mem e t -> le x e
+    mem x t && forall e. mem e t -> x <= e
 
   (* the root is the smallest element *)
   let rec lemma root_is_min (t: tree elt) : unit
@@ -89,7 +85,7 @@ module BraunHeaps
     | Empty ->
         Node Empty x Empty
     | Node l y r ->
-        if le x y then
+        if x <= y then
           Node (add y r) x l
         else
           Node (add x r) y l
@@ -159,7 +155,7 @@ module BraunHeaps
     | _, Empty ->
         l
     | Node ll lx lr, Node _ ly _ ->
-        if le lx ly then
+        if lx <= ly then
           Node r lx (merge ll lr)
         else
           let x, l = extract l in
