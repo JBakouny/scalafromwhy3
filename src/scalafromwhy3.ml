@@ -99,12 +99,13 @@ module Print = struct
     Hstr.mem h
 
   let char_to_alnumusquote c =
-    match c with '\'' -> "\'" | _ -> char_to_alnumus c
+    char_to_alnumus c
 
   (* iprinter: local names
      aprinter: type variables
      tprinter: toplevel definitions *)
   let iprinter, aprinter, tprinter =
+	(* TODO Change ocaml_keywords to scala_keywords *)
     let isanitize = sanitizer char_to_alnumus char_to_alnumusquote in
     let lsanitize = sanitizer char_to_lalnumus char_to_alnumusquote in
     create_ident_printer ocaml_keywords ~sanitizer:isanitize,
