@@ -1,5 +1,5 @@
 package why3tests
-object maximum_subarray{
+object TestMaximumSubarray{
 def maximum_subarray (a: Array[(BigInt)]) : BigInt = {
   val n = a.length ;
   var ms = BigInt(0) ;

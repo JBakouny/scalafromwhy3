@@ -2,9 +2,6 @@ package why3tests
 import org.scalatest.funsuite.AnyFunSuite
 class Why3UnitTests extends AnyFunSuite{
 val green = BigInt(1)
-test("maximum_subarray") {
-assert(maximum_subarray.main(green) == green)
-}
 test("TestAbsFunction") {
 assert(TestAbsFunction.main(green) == green)
 }
@@ -32,6 +29,9 @@ assert(TestLetRefFunction.main(green) == green)
 test("TestMaxFunction") {
 assert(TestMaxFunction.main(green) == green)
 }
+test("TestMaximumSubarray") {
+assert(TestMaximumSubarray.main(green) == green)
+}
 test("TestMultiple") {
 assert(TestMultiple.main(green) == green)
 }
@@ -43,6 +43,9 @@ assert(TestPattern.main(green) == green)
 }
 test("TestPolymorphismFunction") {
 assert(TestPolymorphismFunction.main(green) == green)
+}
+test("TestRandomAccessList") {
+assert(TestRandomAccessList.main(green) == green)
 }
 test("TestRecFactFunction") {
 assert(TestRecFactFunction.main(green) == green)

@@ -1,4 +1,3 @@
-
 (** Random Access Lists.
     (Okasaki, "Purely Functional Data Structures", 10.1.2.)
 
@@ -53,6 +52,8 @@ module RandomAccessList
     | Zero  l1 ->     2 * size l1
     | One _ l1 -> 1 + 2 * size l1
     end
+
+let main green = green
 
   let rec cons (x: 'a) (l: ral 'a) : ral 'a
     variant { l }
