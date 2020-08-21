@@ -107,11 +107,13 @@ module int.ComputerDivision
 end
 
 module null.Null
+
   syntax type t           "%1"
   syntax val  create_null "(fun () -> Obj.magic (ref 0))"
   syntax val  eq_null     "(==)"
   syntax val  create      "(fun x -> x)"
   syntax val  get         "(fun x -> x)"
+
 end
 
 
@@ -372,6 +374,7 @@ module mach.int.Int63
 (*  syntax val      to_bv     "(fun x -> x)"
   syntax val      of_bv     "(fun x -> x)"*)
 end
+
 (*
 module mach.int.Random63
   syntax val s             "REMOVE"
